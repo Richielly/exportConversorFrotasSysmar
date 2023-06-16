@@ -6,417 +6,344 @@ class Script:
         cfg.read('cfg.ini')
 
         return {
-        'Cor' : f""" select cordes ||'|' from fro_cor """
+        'Cor' : f""" select cordes ||'|' from fro_cor """,
 
-        # 'Marca' : f""" SELECT m.nmmarca ||'|' FROM marca m """,
-        #
-        # 'ParameterSystem' : f""" select
-        # ps.CODENTIDADE ||'|'||
-        # ps.NMPARAMETERSYSTEM ||'|'||
-        # ps.VLPARAMETERSYSTEM ||'|' as extractParameterSystem
-        # from Scf_ParameterSystem ps
-        # where codentidade = {codEntidade} """,
-        #
-        # 'Especie' : f""" select
-        # e.NMESPECIE ||'|'||
-        # coalesce(c.TPCATEGORIACNH, '') ||'|'||
-        # coalesce(e.TPESPECIEACUMULADOR, '') ||'|'||
-        # coalesce(e.TPVEICULOTCE, '') ||'|'||
-        # coalesce(e.TPNATUREZABENS, '') ||'|' as extractEspecie
-        # from
-        # SCF_ESPECIE e
-        # left join scf_CategoriaCnh c on (c.IDCATEGORIACNH = e.IDCATEGORIACNH) """,
-        #
-        # 'Modelo' : f""" select
-        # mo.NMMODELO ||'|'||
-        # ma.NMMARCA ||'|'||
-        # e.NMESPECIE ||'|'||
-        # coalesce(mo.TPCOMBUSTIVELTCE, '') ||'|' as etractespecie
-        # from
-        # scf_modelo mo
-        # join MARCA ma on (ma.IDMARCA = mo.IDMARCA)
-        # join SCF_ESPECIE e on (e.IDESPECIE = mo.IDESPECIE) """,
-        #
-        # 'TipoServico' : f""" select
-        # ts.NMTIPOSERVICO ||'|'||
-        # ts.TPAGENDAMENTOSERVICO ||'|' as extractTipoServico
-        # from
-        # scf_TipoServico ts """,
-        #
-        # 'Motorista' : f""" select
-        # m.CODENTIDADE ||'|'||
-        # m.NRCODIGOMOTORISTA ||'|'||
-        # s.MATRICULA ||'|'||
-        # coalesce(s.CODPESSOA, '') ||'|'||
-        # coalesce(pf.CPF, '') ||'|'||
-        # m.NRREGISTROCNH ||'|'||
-        # m.TPMODELOCNH ||'|'||
-        # COALESCE(EXTRACT(day FROM m.DTPRIMEIRACNH) ||'/'|| EXTRACT(month FROM m.DTPRIMEIRACNH) ||'/'|| EXTRACT(year FROM m.DTPRIMEIRACNH),'') ||'|'||
-        # COALESCE(EXTRACT(day FROM m.DTVALIDADECNH) ||'/'|| EXTRACT(month FROM m.DTVALIDADECNH) ||'/'|| EXTRACT(year FROM m.DTVALIDADECNH),'') ||'|'||
-        # COALESCE(EXTRACT(day FROM m.DTEMISSAOCNH) ||'/'|| EXTRACT(month FROM m.DTEMISSAOCNH) ||'/'|| EXTRACT(year FROM m.DTEMISSAOCNH),'') ||'|' ||
-        # m.ativo ||'|' as ExtarctMotorista
-        # from scf_motorista m
-        # left join servidor s on (s.idservidor=m.IDSERVIDOR)
-        # left join PESSOAFISICA pf on (pf.CODPESSOA = s.CODPESSOA)
-        # where
-        # m.codentidade={codEntidade} """,
-        #
-        # 'Veiculo' : f""" select
-        # v.CODENTIDADE ||'|'||
-        # v.NRFROTA ||'|'||
-        # coalesce(b.CODBEM,'') ||'|'||
-        # v.NRPLACA ||'|'||
-        # e.NMESPECIE ||'|'||
-        # trim(m.NMMODELO) ||'|'||
-        # c.nmcor ||'|'||
-        # coalesce(v.NRRENAVAM,'') ||'|'||
-        # coalesce(v.NRCHASSI,'') ||'|'||
-        # coalesce(v.NRMOTOR,'') ||'|'||
-        # coalesce(v.NRANOFABRICACAO,'') ||'|'||
-        # coalesce(v.NRANOMODELO,'') ||'|'||
-        # v.NRPASSAGEIRO ||'|'||
-        # v.DSOBSERVACAO ||'|'||
-        # v.ISACUMULADORFUNCIONANDO ||'|'||
-        # coalesce(v.TPVINCULO,'') ||'|'||
-        # coalesce(v.TPCOMBUSTIVEL,'') ||'|'||
-        # EXTRACT(day FROM v.DTINCLUSAOSIMAM) ||'/'|| EXTRACT(month FROM v.DTINCLUSAOSIMAM) ||'/'|| EXTRACT(year FROM v.DTINCLUSAOSIMAM) ||'|'||
-        # replace(v.NRCILINDRADAS, '.',',') ||'|'||
-        # replace(v.NRPOTENCIAMOTOR, '.',',') ||'|'||
-        # replace(v.NRCAPACIDADETANQUECOMB, '.',',') ||'|'||
-        # replace(v.NRCAPACIDADECARGA, '.',',') ||'|'||
-        # COALESCE(v.IMPRESSAODIARIOBORDO, '1') ||'|'||
-        # replace(coalesce(v.MEDIACONSUMO, ''), '.', ',') ||'|' as extractMotorista
-        # from
-        # scf_veiculo v
-        # join scf_modelo m on (m.idmodelo = v.idmodelo)
-        # join scf_especie e on (e.idespecie = m.idespecie)
-        # join cor c on (c.idcor = v.idcor)
-        # left join bemobrigacao bo on (bo.idbemobrigacao = v.idbemobrigacao)
-        # left join scp55_bem b on (b.idbem = v.idbem)
-        # where
-        # v.codentidade={codEntidade} """,
-        #
-        # 'Produto' : f""" select
-        # p2.NOME ||'|'||
-        # p.CODPRODUTO ||'|'||
-        # p.TPPRODUTO ||'|'||
-        # coalesce(p.CODFABRICANTE, '') ||'|'||
-        # coalesce(p.DSOBSERVACAO, '') ||'|'||
-        # p.ISATIVO ||'|' as extractProduto
-        # from produto p2
-        # join SCF_PRODUTO p on (p.codproduto = p2.CODPRODUTO) """,
-        #
-        # 'VeiculoProduto' : f""" select
-        # v.codentidade ||'|'||
-        # v.nrfrota ||'|'||
-        # p.codproduto ||'|'||
-        # p2.NOME ||'|' as extractVeiculoProduto
-        # from
-        # scf_veiculoproduto vp
-        # join scf_veiculo v on (v.idveiculo = vp.idveiculo)
-        # join scf_produto p on (p.idproduto = vp.idproduto)
-        # join produto p2 on (p2.CODPRODUTO = p.CODPRODUTO)
-        # where
-        # v.codentidade={codEntidade} """,
-        #
-        # 'MotoristaCategoriaCnh' : f""" select
-        # m.codentidade ||'|'||
-        # m.nrcodigomotorista ||'|'||
-        # cc.tpcategoriacnh ||'|' as extractMotoristaCatCnh
-        # from
-        # scf_motoristacatcnh mc
-        # join scf_motorista m on (m.idmotorista = mc.idmotorista)
-        # join scf_categoriacnh cc on (cc.idcategoriacnh = mc.idcategoriacnh)
-        # where
-        # m.codentidade={codEntidade} """,
-        #
-        # 'MotoristaSituacaoCnh' : f""" select
-        # m.codentidade ||'|'||
-        # m.nrcodigomotorista ||'|'||
-        # EXTRACT(day FROM ms.DTSITUACAOCNH) ||'/'|| EXTRACT(month FROM ms.DTSITUACAOCNH) ||'/'|| EXTRACT(year FROM ms.DTSITUACAOCNH) ||'|'||
-        # ms.IDSITUACAOCNH ||'|'||
-        # ms.NRPONTOSVIGENTES ||'|' as extractMotoristaSituacaoCnh
-        # from
-        # scf_motoristasituacaocnh ms
-        # join scf_motorista m on (m.idmotorista = ms.idmotorista)
-        # where
-        # m.codentidade={codEntidade} """,
-        #
-        # 'Abastecimento' : f""" select
-        # v.codentidade ||'|'||
-        # va.NRABASTECIMENTO ||'|'||
-        # v.nrfrota ||'|'||
-        # coalesce(b.codbem,'') ||'|'||
-        # p.codproduto ||'|'||
-        # coalesce(p2.NOME,'') ||'|'||
-        # coalesce(m.NRCODIGOMOTORISTA,'') ||'|'||
-        # replace(va.VLUNITARIO, '.',',') ||'|'||
-        # LPAD( EXTRACT( day FROM va.DTABASTECIMENTO ), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM va.DTABASTECIMENTO ), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM va.DTABASTECIMENTO ), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM va.DTABASTECIMENTO ), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM va.DTABASTECIMENTO ), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM va.DTABASTECIMENTO ), 2, '0' ), '.', '0') ||'|'||
-        # replace(va.NRLITROSABASTECIMENTO, '.',',') ||'|'||
-        # replace(va.VLABASTECIMENTO, '.',',') ||'|'||
-        # va.TPABASTECIMENTO ||'|'||
-        # coalesce(va.NRNOTAFISCAL,'') ||'|'||
-        # replace(coalesce(va.DSOBSERVACAO,''),ASCII_CHAR(13)||ASCII_CHAR(10), ' ') ||'|'||
-        # coalesce(va.CODFORNECEDOR,'') ||'|'||
-        # coalesce(coalesce(pj.CNPJ, pf.CPF),'') ||'|'||
-        # coalesce(va.CODPESSOA,'') ||'|'||
-        # coalesce(va.CODLOCAL,'') ||'|'||
-        # coalesce(va.NRINTERNO,'') ||'|'||
-        # va.ISACUMULADORFUNCIONANDO ||'|'||
-        # coalesce(l.CODENTIDADE,'') ||'|'||
-        # coalesce(l.EXERCICIO,'') ||'|'||
-        # coalesce(l.NUMEROLIQUIDACAO,'') ||'|'||
-        # coalesce(l.EXERCICIOLIQUIDACAO,'') ||'|'||
-        # coalesce(l.CODENTIDADEORIGEM,'') ||'|'||
-        # coalesce(e.CODENTIDADE,'') ||'|'||
-        # coalesce(e.EXERCICIO,'') ||'|'||
-        # coalesce(e.NUMEROEMPENHO,'') ||'|'||
-        # coalesce(e.EXERCICIOEMPENHO,'') ||'|'||
-        # coalesce(e.CODENTIDADEORIGEM,'') ||'|' as extractVeiculoAbastecimento
-        # from
-        # scf_veiculoabastecimento va
-        # join scf_veiculo v on (v.idveiculo = va.idveiculo)
-        # left join PESSOAFISICA pf on (pf.CODPESSOA = va.CODFORNECEDOR)
-        # left join PESSOAJURIDICA pj on (pj.CODPESSOA = va.CODFORNECEDOR)
-        # join SCF_MOTORISTA m on (m.IDMOTORISTA = va.IDMOTORISTA)
-        # left join scp55_bem b on (b.idbem=v.idbem)
-        # left join scf_produto p on (p.idproduto = va.idproduto)
-        # left join produto p2 on (p2.CODPRODUTO = p.CODPRODUTO)
-        # left join SCP55_LIQUIDACAO l on (l.IDLIQUIDACAO = va.IDLIQUIDACAO)
-        # left join SCP55_EMPENHO e on (e.IDEMPENHO = va.IDEMPENHO)
-        # where
-        # v.codentidade={codEntidade} """,
-        #
-        # 'Acumulador' : f""" select
-        # v.CODENTIDADE ||'|'||
-        # v.nrfrota ||'|'||
-        # b.codbem ||'|'||
-        # LPAD( EXTRACT( day FROM va.DTLEITURAACUMULADOR), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM va.DTLEITURAACUMULADOR), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM va.DTLEITURAACUMULADOR), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM va.DTLEITURAACUMULADOR), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM va.DTLEITURAACUMULADOR), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM va.DTLEITURAACUMULADOR), 2, '0' ), '.', '0') ||'|'||
-        # va.TPORIGEMLEITURAACUMULADOR ||'|'||
-        # coalesce(vab.nrabastecimento, '') ||'|'||
-        # replace(va.VLACUMULADOR, '.', ',') ||'|'||
-        # coalesce(replace(va.TMPVLACUMULADOR, '.', ','),'') ||'|' as ExtractAcumulador
-        # from
-        # scf_veiculoacumulador va
-        # join scf_veiculo v on (v.idveiculo = va.idveiculo)
-        # join scp55_bem b on (b.idbem = v.idbem)
-        # left join scf_veiculoabastecimento vab on (vab.idveiculoabastecimento = va.idveiculoabastecimento)
-        # where
-        # v.codentidade={codEntidade} """,
-        #
-        # 'ConsumoCombustivel' : f""" select
-        # v.codentidade ||'|'||
-        # cc.nrsequencial ||'|'||
-        # v.nrfrota ||'|'||
-        # cc.NRMES ||'|'||
-        # cc.NRANO ||'|'||
-        # cc.IDTIPOCATEGORIAOBJETODESPESA ||'|'||
-        # cc.IDTIPOOBJETODESPESA ||'|'||
-        # replace(cc.NRQUANTIDADE, '.', ',') ||'|' as extractConsumoCombustive
-        # from
-        # scf_consumocombustivel cc
-        # join scf_veiculo v on (v.idveiculo = cc.idveiculo)
-        # where
-        # v.codentidade={codEntidade} """,
-        #
-        # 'EstornoConsumoCombustivel' : f""" select
-        # ec.codentidade ||'|'||
-        # ec.nrsequencial ||'|'||
-        # c.CODENTIDADE ||'|'||
-        # c.nrsequencial ||'|'||
-        # v.nrfrota ||'|'||
-        # LPAD( EXTRACT( day FROM ec.DATAESTORNO), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM ec.DATAESTORNO), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM ec.DATAESTORNO), 4, '0' ) ||'|'||
-        # ec.MES ||'|'||
-        # ec.ANO ||'|'||
-        # ec.MOTIVO ||'|'||
-        # replace(ec.NRQUANTIDADE, '.', ',') ||'|' as extractEstornoConsumo
-        # from
-        # scf_estornoconsumocombustivel ec
-        # join scf_consumocombustivel c on (c.idconsumocombustivel = ec.idconsumocombustivel)
-        # join scf_veiculo v on (v.idveiculo = c.idveiculo)
-        # where
-        # ec.codentidade={codEntidade} """,
-        #
-        # 'VeiculoControleSimAm' : f""" select
-        # v.codentidade ||'|'||
-        # v.nrfrota ||'|'||
-        # vcs.CDCONTROLE ||'|'||
-        # vcs.CDTIPOLANCAMENTO ||'|'||
-        # LPAD( EXTRACT( day FROM vcs.DTLANCAMENTO ), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM vcs.DTLANCAMENTO ), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM vcs.DTLANCAMENTO ), 4, '0' ) ||'|'||
-        # vcs.VLRDECLARADO ||'|'||
-        # coalesce(replace(vcs.DSNOTAEXPLICATIVA, ASCII_CHAR(13) || ASCII_CHAR(10), ''), '') ||'|'||
-        # coalesce(vcs.CDCONTROLESIMAM,'') ||'|'||
-        # vcs.ISTROCAACUMULADOR ||'|'||
-        # replace(vcs.VLRACUMULADORINICIAL, '.', ',') ||'|'||
-        # replace(vcs.VLRACUMULADORFINAL, '.', ',') ||'|'||
-        # replace(vcs.NOVOVALORACUMULADORINICIAL, '.', ',') ||'|'||
-        # coalesce(LPAD( EXTRACT( day FROM va.dtleituraacumulador ), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM va.dtleituraacumulador ), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM va.dtleituraacumulador ), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM va.dtleituraacumulador ), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM va.dtleituraacumulador ), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM va.dtleituraacumulador ), 2, '0' ), '.', '0') ,'') ||'|' as ExtractControleSimAm
-        # from
-        # scf_veiculocontrolesimam vcs
-        # join scf_veiculo v on (v.idveiculo = vcs.idveiculo)
-        # left join scf_veiculoacumulador va on (va.idveiculoacumulador = vcs.idveiculoacumulador)
-        # where
-        # v.codentidade={codEntidade} """,
-        #
-        # 'OrdemAbastecimento' : f""" select
-        # oa.codentidade ||'|'||
-        # oa.NRORDEMABASTECIMENTO ||'|'||
-        # v.nrfrota ||'|'||
-        # COALESCE(oa.CODFORNECEDOR,'') ||'|'||
-        # COALESCE(coalesce(pj.CNPJ,pf.CPF),'') ||'|'||
-        # m.nrcodigomotorista ||'|'||
-        # LPAD( EXTRACT( day FROM oa.DTORDEMABASTECIMENTO), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM oa.DTORDEMABASTECIMENTO), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM oa.DTORDEMABASTECIMENTO), 4, '0' ) ||'|'||
-        # COALESCE(p.codproduto,'') ||'|'||
-        # oa.TPABASTECIMENTO ||'|'||
-        # replace(oa.NRLITROSORDEMABASTECIMENTO, '.',',') ||'|'||
-        # coalesce(va.NRABASTECIMENTO, '') ||'|'||
-        # coalesce(oa.EXERCICIOLICITACAO,'') ||'|'||
-        # oa.CODTIPOLICITACAO ||'|'||
-        # coalesce(oa.CODLICITACAO,'') ||'|'||
-        # coalesce(replace(oa.NRSALDOLICITACAO, '.',','),'') ||'|'||
-        # coalesce(oa.CODPESSOA, '') ||'|'||
-        # coalesce(pf.cpf, '') ||'|'||
-        # coalesce(oa.CODLOCAL, '') ||'|'||
-        # coalesce(oa.DSOBSERVACAO,'') ||'|'||
-        # replace(coalesce(oa.TEMPVLACUMULADOR, ''), '.',',') ||'|'||
-        # replace(coalesce(oa.VLACUMULADOR, ''), '.',',') ||'|' as ExtractOrdemAbastecimento
-        # from
-        # scf_ordemabastecimento oa
-        # join scf_veiculo v on (v.idveiculo = oa.idveiculo)
-        # left join scf_motorista m on (m.idmotorista = oa.idmotorista)
-        # left join scf_produto p on (p.idproduto = oa.idproduto)
-        # left join scf_veiculoabastecimento va on (va.idveiculoabastecimento = oa.idveiculoabastecimento)
-        # left join FORNECEDOR f on (f.CODFORNECEDOR = oa.CODFORNECEDOR)
-        # left join PESSOAFISICA pf on (pf.CODPESSOA = f.CODFORNECEDOR)
-        # left join PESSOAJURIDICA pj on (pj.CODPESSOA = f.CODFORNECEDOR)
-        # where
-        # oa.codentidade={codEntidade} """,
-        #
-        # 'ClassificacaoFornecedor' : f""" select
-        # cf.CODENTIDADE ||'|'||
-        # cf.CODFORNECEDOR ||'|'||
-        # cf.TPCLASSIFICACAOFORNECEDOR ||'|' as extractclassificacaoFornecedor
-        # from
-        # scf_classificacaofornecedor cf
-        # where
-        # cf.codentidade={codEntidade} """,
-        #
-        # 'VeiculoAgendamentoServico' : f""" select
-        # v.codentidade ||'|'||
-        # v.nrfrota ||'|'||
-        # ts.nmtiposervico ||'|'||
-        # LPAD( EXTRACT( day FROM va.dtagendamentoservico ), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM va.dtagendamentoservico ), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM va.dtagendamentoservico ), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM va.dtagendamentoservico ), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM va.dtagendamentoservico ), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM va.dtagendamentoservico ), 2, '0' ), '.', '0') ||'|'||
-        # coalesce(va.CODFORNECEDOR,'') ||'|'||
-        # coalesce(pj.CNPJ,'') ||'|'||
-        # coalesce(os.NRORDEMSERVICO, '') ||'|'||
-        # coalesce(va.DSOBSERVACAOAGENDAMENTOSERVICO,'') ||'|'||
-        # coalesce(replace(va.TEMPVLACUMULADOR,'.',','),'') ||'|'||
-        # replace(va.vlacumuladoragendamentoservico,'.',',') ||'|' as extractVeiculoAgendamento
-        # from
-        # scf_veiculoagendamentoservico va
-        # join scf_veiculo v on (v.idveiculo = va.idveiculo)
-        # join scf_tiposervico ts on (ts.idtiposervico = va.idtiposervico)
-        # left join FORNECEDOR f on (f.CODFORNECEDOR = va.CODFORNECEDOR)
-        # left join PESSOAJURIDICA pj on (pj.CODPESSOA = f.CODFORNECEDOR)
-        # left join scf_VeiculoOrdemServico os on (os.IDVEICULOORDEMSERVICO = va.IDVEICULOORDEMSERVICO)
-        # where
-        # v.codentidade={codEntidade} """,
-        #
-        # 'VeiculoOrdemServico' : f""" select
-        # os.codentidade ||'|'||
-        # os.NRORDEMSERVICO ||'|'||
-        # v.nrfrota ||'|'||
-        # COALESCE(os.CODFORNECEDOR,'') ||'|'||
-        # ts.nmtiposervico ||'|'||
-        # LPAD( EXTRACT( day FROM os.DTORDEMSERVICO), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM os.DTORDEMSERVICO), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM os.DTORDEMSERVICO), 4, '0' ) ||'|'||
-        # coalesce(LPAD( EXTRACT( day FROM os.DTINICIOORDEMSERVICO), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM os.DTINICIOORDEMSERVICO), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM os.DTINICIOORDEMSERVICO), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM os.DTINICIOORDEMSERVICO), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM os.DTINICIOORDEMSERVICO), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM os.DTINICIOORDEMSERVICO), 2, '0' ), '.', '0'), LPAD( EXTRACT( day FROM os.DTORDEMSERVICO), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM os.DTORDEMSERVICO), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM os.DTORDEMSERVICO), 4, '0' ) ) ||'|'||
-        # coalesce(LPAD( EXTRACT( day FROM vai.dtleituraacumulador), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM vai.dtleituraacumulador), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM vai.dtleituraacumulador), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM vai.dtleituraacumulador), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM vai.dtleituraacumulador), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM vai.dtleituraacumulador), 2, '0' ), '.', '0'),'') ||'|'||
-        # coalesce(LPAD( EXTRACT( day FROM vaf.dtleituraacumulador), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM vaf.dtleituraacumulador), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM vaf.dtleituraacumulador), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM vaf.dtleituraacumulador), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM vaf.dtleituraacumulador), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM vaf.dtleituraacumulador), 2, '0' ), '.', '0'),'') ||'|'||
-        # coalesce(LPAD( EXTRACT( day FROM os.DTTERMINOORDEMSERVICO), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM os.DTTERMINOORDEMSERVICO), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM os.DTTERMINOORDEMSERVICO), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM os.DTTERMINOORDEMSERVICO), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM os.DTTERMINOORDEMSERVICO), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM os.DTTERMINOORDEMSERVICO), 2, '0' ), '.', '0'),'') ||'|'||
-        # replace(coalesce(os.DSOBSERVACAOORDEMSERVICO,''),ASCII_CHAR(13)||ASCII_CHAR(10), ' ') ||'|'||
-        # os.ISACUMULADORFUNCIONANDO ||'|'||
-        # m.NRCODIGOMOTORISTA ||'|'||
-        # COALESCE(os.CODPESSOA,'') ||'|'||
-        # Coalesce(os.NRDIASGARANTIA, '') ||'|'||
-        # Coalesce(os.LOCALRESPONSAVEL, '') ||'|'||
-        # Coalesce(os.ORGAORESPONSAVEL, '') ||'|'||
-        # Coalesce(os.UNIDADERESPONSAVEL, '') ||'|'||
-        # Coalesce(os.CODLOCAL,'') ||'|' as extractVeiculoOrdemServico
-        # from
-        # scf_veiculoordemservico os
-        # join scf_veiculo v on (v.idveiculo = os.idveiculo)
-        # join scf_tiposervico ts on (ts.idtiposervico = os.idtiposervico)
-        # left join scf_veiculoacumulador vai on (vai.idveiculoacumulador = os.idveiculoacumuladorosinicio)
-        # left join scf_veiculoacumulador vaf on (vaf.idveiculoacumulador = os.idveiculoacumuladorostermino)
-        # left join scf_motorista m on (m.idmotorista = os.idmotorista)
-        # where
-        # os.codentidade={codEntidade} """,
-        #
-        # 'VeiculoOrdemServicoProduto' : f""" select
-        # os.codentidade ||'|'||
-        # os.nrordemservico ||'|'||
-        # p.codproduto ||'|'||
-        # replace(osp.VLQUANTIDADE,'.',',') ||'|'||
-        # replace(osp.VLTOTAL,'.',',') ||'|'||
-        # osp.NRSEQUENCIAPRODUTO ||'|'||
-        # osp.DSOBSERVACAO ||'|'||
-        # coalesce(osp.NRDIASGARANTIA,'') ||'|' as VeiculoOrdemServicoProduto
-        # from
-        # scf_veiculoordemservicoproduto osp
-        # join scf_veiculoordemservico os on (os.idveiculoordemservico = osp.idveiculoordemservico)
-        # join scf_produto p on (p.idproduto = osp.idproduto)
-        # where
-        # os.codentidade={codEntidade} """,
-        #
-        # 'Nf' : f""" select
-        # n.CODENTIDADE ||'|'||
-        # n.IDNF ||'|'||
-        # n.CODFORNECEDOR ||'|'||
-        # n.IDTIPODOCFISCAL ||'|'||
-        # n.IDTIPOSERIEDOCFISCAL ||'|'||
-        # n.NUMERONOTAABASTECIMENTO ||'|'||
-        # LPAD( EXTRACT( day FROM n.DATAEMISSAO), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM n.DATAEMISSAO), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM n.DATAEMISSAO), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM n.DATAEMISSAO), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM n.DATAEMISSAO), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM n.DATAEMISSAO), 2, '0' ), '.', '0') ||'|'||
-        # replace(n.VALORNOTAFISCAL, '.',',') ||'|'||
-        # n.PERMITEAJUSTEDEVALORES ||'|'||
-        # LPAD( EXTRACT( day FROM n.DATAINICIOFATURAMENTO), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM n.DATAINICIOFATURAMENTO), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM n.DATAINICIOFATURAMENTO), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM n.DATAINICIOFATURAMENTO), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM n.DATAINICIOFATURAMENTO), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM n.DATAINICIOFATURAMENTO), 2, '0' ), '.', '0') ||'|'||
-        # LPAD( EXTRACT( day FROM n.DATAFINALFATURAMENTO), 2, '0' ) ||'/'|| LPAD( EXTRACT( month FROM n.DATAFINALFATURAMENTO), 2, '0' ) ||'/'|| LPAD( EXTRACT( YEAR FROM n.DATAFINALFATURAMENTO), 4, '0' ) ||' '|| LPAD( EXTRACT( hour FROM n.DATAFINALFATURAMENTO), 2, '0' ) ||':'|| LPAD( EXTRACT( minute FROM n.DATAFINALFATURAMENTO), 2, '0' ) ||':'|| replace(LPAD( EXTRACT( second FROM n.DATAFINALFATURAMENTO), 2, '0' ), '.', '0') ||'|'||
-        # n.STATUSNFABASTECIMENTO ||'|'||
-        # n.PROCESSADO ||'|'||
-        # replace(n.VALORNOTAFISCALCALCULADO, '.',',') ||'|' as ExtractnotaFiscal
-        # from scf_nf n """,
-        #
-        # 'NfProduto' : f""" select
-        # n.CODENTIDADE ||'|'||
-        # p.CODPRODUTO ||'|'||
-        # n.IDNF ||'|'||
-        # n.CODFORNECEDOR ||'|'||
-        # n.IDTIPODOCFISCAL ||'|'||
-        # n.IDTIPOSERIEDOCFISCAL ||'|'||
-        # n.NUMERONOTAABASTECIMENTO ||'|'||
-        # coalesce(replace(np.PRECOAJUSTADO, '.',','), '') ||'|' as notaProduto
-        # from Scf_NfProduto np
-        # join SCF_NF n on (n.IDNF = np.IDNF)
-        # left join SCF_PRODUTO p on (p.IDPRODUTO = np.IDPRODUTO)
-        # where
-        # n.CODENTIDADE={codEntidade} """,
-        #
-        # 'NfAbastecimento' : f""" select
-        # v.CODENTIDADE ||'|'||
-        # v.NRFROTA ||'|'||
-        # va.NRABASTECIMENTO ||'|'||
-        # n.IDNF ||'|'||
-        # n.CODFORNECEDOR ||'|'||
-        # n.IDTIPODOCFISCAL ||'|'||
-        # n.IDTIPOSERIEDOCFISCAL ||'|'||
-        # n.NUMERONOTAABASTECIMENTO ||'|'||
-        # coalesce(replace(na.VALORLITROAJUSTADO, '.',','),'') ||'|'||
-        # coalesce(replace(na.VALORTOTALAJUSTADO, '.',','),'') ||'|' as notaAbastecimento
-        # from
-        # Scf_NfAbastecimento na
-        # join SCF_VEICULOABASTECIMENTO va on (va.IDVEICULOABASTECIMENTO = na.IDVEICULOABASTECIMENTO)
-        # join scf_veiculo v on (v.IDVEICULO = va.IDVEICULO)
-        # left join SCF_NF n on (n.IDNF = na.IDNF)
-        # where
-        # v.CODENTIDADE={codEntidade} """
+        'Marca' : f""" select substring(mardes from 1 for 30) ||'|' from fro_mar """,
+
+        'Especie' : f""" select distinct
+                    case veinat
+                    when 0 then 'NENHUM'
+                    when 1 then 'VEÍCULOS DE PASSEIO E UTILITÁRIOS'
+                    when 2 then 'CAMINHÕES'
+                    when 3 then 'ÔNIBUS'
+                    when 4 then 'MICROÔNIBUS'
+                    when 5 then 'MOTOS'
+                    when 50 then 'MOTONIVELADORA'
+                    when 51 then 'PÁ CARREGADEIRA'
+                    when 52 then 'TRATORES AGRÍCOLAS'
+                    when 99 then 'OUTROS EQUIPAMENTOS'
+                    when 999 then 'OUTROS TIPOS DE VEÍCULOS E EQUIPAMENTOS' end ||'|'||
+                    case veinat
+                    when 0 then 'A'
+                    when 1 then 'B'
+                    when 2 then 'C'
+                    when 3 then 'D'
+                    when 4 then 'D'
+                    when 5 then 'A'
+                    when 50 then 'D'
+                    when 51 then 'D'
+                    when 52 then 'C'
+                    when 99 then 'A'
+                    when 999 then 'A' end ||'|'||
+                    case veiodom
+                    when 'K' then '1'
+                    when 'H' then '2'
+                    when 'N' then '' end ||'|'||
+                    '' ||'|'||
+                    '' ||'|' as Especie
+                    from fro_veic """,
+
+        'Modelo' : f""" select
+                        v.veides ||'|'||
+                        substring(m.mardes from 1 for 30) ||'|'||
+                        case v.veinat
+                        when 0 then 'NENHUM'
+                        when 1 then 'VEÍCULOS DE PASSEIO E UTILITÁRIOS'
+                        when 2 then 'CAMINHÕES'
+                        when 3 then 'ÔNIBUS'
+                        when 4 then 'MICROÔNIBUS'
+                        when 5 then 'MOTOS'
+                        when 50 then 'MOTONIVELADORA'
+                        when 51 then 'PÁ CARREGADEIRA'
+                        when 52 then 'TRATORES AGRÍCOLAS'
+                        when 99 then 'OUTROS EQUIPAMENTOS'
+                        when 999 then 'OUTROS TIPOS DE VEÍCULOS E EQUIPAMENTOS' end ||'|'||
+                        case v.veinat
+                        when 0 then '1'
+                        when 1 then '2'
+                        when 2 then '3'
+                        when 3 then '4'
+                        when 4 then '4'
+                        when 5 then '1'
+                        when 50 then '4'
+                        when 51 then '4'
+                        when 52 then '3'
+                        when 99 then '1'
+                        when 999 then '1' end ||'|'||
+                        case v.veiodom
+                        when 'K' then '1'
+                        when 'H' then '2'
+                        when 'N' then '' end ||'|'||
+                        v.veitipcomb ||'|' as modelo
+                        from fro_veic v
+                        join FRO_FIPE fp on (fp.fipecod = v.veifipecod)
+                        join fro_mar m on (m.marcod = fp.marcod) """,
+
+        'Motorista' : f""" select
+                            distinct
+                            {codEntidade} ||'|'||
+                            coalesce(cast(a.solicitantecodigo as varchar), '') ||'|'||
+                            '' ||'|'||
+                            coalesce(cast(m.motpescod as varchar), '') ||'|'||
+                            lpad(cast(replace(replace(p.pescpfcnpj,'.',''),'-','') as varchar),11,'0') ||'|'||
+                            coalesce(cast(m.mothabreg as varchar), '') ||'|'||
+                            '1' ||'|'||
+                            coalesce(substring(cast(m.mothabdatpri as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatpri as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatpri as varchar) from 1 for 4), '') ||'|'||
+                            coalesce(substring(cast(m.mothabdatval as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 1 for 4), '') ||'|'||
+                            coalesce(substring(cast(m.mothabdatemis as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 1 for 4), '') ||'|' as motorista
+                            from public.fro_abastecimentos a
+                            join public.fro_pes p on (p.pescod = a.solicitantecodigo)
+                            left join public.fro_mot m on (m.motpescod = a.solicitantecodigo) """,
+
+        'Veiculo' : f""" SELECT
+                        {codEntidade} ||'|'||
+                        v.veicod ||'|'||
+                        v.veicodbenpat ||'|'||
+                        v.veiplaca ||'|'||
+                        case veinat
+                        when 0 then 'NENHUM'
+                        when 1 then 'VEÍCULOS DE PASSEIO E UTILITÁRIOS'
+                        when 2 then 'CAMINHÕES'
+                        when 3 then 'ÔNIBUS'
+                        when 4 then 'MICROÔNIBUS'
+                        when 5 then 'MOTOS'
+                        when 50 then 'MOTONIVELADORA'
+                        when 51 then 'PÁ CARREGADEIRA'
+                        when 52 then 'TRATORES AGRÍCOLAS'
+                        when 99 then 'OUTROS EQUIPAMENTOS'
+                        when 999 then 'OUTROS TIPOS DE VEÍCULOS E EQUIPAMENTOS' end ||'|'||
+                        v.veides ||'|'||
+                        coalesce(c.cordes,'1') ||'|'|| --incluir padrão
+                        coalesce(v.veirenavam, '') ||'|'||
+                        coalesce(v.veichassi, '') ||'|'||
+                        '' ||'|'||
+                        v.veianofab ||'|'||
+                        v.veianomod ||'|'||
+                        '1' ||'|'|| --sem dados na base padrão 1 campo obrigatório
+                        regexp_replace(v.veiobs, '[\\n\\r]+', ' ', 'g' ) ||'|'||
+                        coalesce(h.veihodhorsit, '2') ||'|'||
+                        veitipvinc ||'|'||
+                        v.veitipcomb ||'|'||
+                        substring(cast(v.veidatsimam as varchar) from 9 for 2) ||'/'|| substring(cast(v.veidatsimam as varchar) from 6 for 2) ||'/'|| substring(cast(v.veidatsimam as varchar) from 1 for 4) ||'|'||
+                        '1' ||'|'||
+                        '1' ||'|'||
+                        '1' ||'|'||
+                        '1' ||'|'||
+                        '2' ||'|'||
+                        '1' ||'|' as Veiculo
+                        FROM public.fro_veic v
+                        left join fro_cor c on (c.corcod = v.veicorcod)
+                        left join FRO_VEIC_HODHOR h on (h.veicod = v.veicod and v.veihodhorseqatu = h.veihodhorseq) """,
+
+        'Produto' : f""" select
+                        p.combdes ||'|'||
+                        p.combcod ||'|'||
+                        '1' ||'|'|| --Combustivel
+                        '' ||'|'||
+                        '' ||'|'||
+                        1 ||'|' as Produto
+                        from fro_comb p
+                        union all
+                        select distinct
+                        substring (upper(i.iteetqdes) from 1 for 70 ) ||'|'||
+                        '9999' ||'|'||
+                        '3' ||'|'|| -- 1 Combustivel |2 Óleo/Lubrificante |3 Peças | 4 Serviços | 5 Pneus | 6 Acessorios
+                        '' ||'|'||
+                        '' ||'|'||
+                        1 ||'|' --1 Ativo
+                        from fro_man2 m2
+                        join fro_iteetq i on (i.iteetqcod = m2.iteetqcod) """,
+
+        'VeiculoProduto' : f""" select
+                                distinct
+                                {codEntidade} ||'|'||
+                                coalesce(cast(a.veicod as varchar), '') ||'|'||
+                                coalesce(cast(a.combcod as varchar),'') ||'|'||
+                                coalesce(c.combdes, '') ||'|' as veiculoProduto
+                                FROM public.fro_abastecimentos a
+                                join fro_comb c on (c.combcod = a.combcod) """,
+
+        'MotoristaCategoriaCnh' : f""" SELECT
+                                        {codEntidade} ||'|'||
+                                        m.motpescod ||'|'||
+                                        case m.mothabcat
+                                        when 'A' then 'A'
+                                        when 'B' then 'B'
+                                        when 'C' then 'C'
+                                        when 'D' then 'D'
+                                        when 'E' then 'E'
+                                        when 'AB' then 'B'
+                                        when 'AC' then 'C'
+                                        when 'AD' then 'D'
+                                        when 'AE' then 'E' else 'A' end ||'|' as MotoristaCatCnh
+                                        FROM public.fro_mot m
+                                        join fro_pes p on (p.pescod = m.motpescod) """,
+
+        'MotoristaSituacaoCnh' : f""" SELECT
+                                    {codEntidade} ||'|'||
+                                    m.motpescod ||'|'||
+                                    DATE_PART('day',(SELECT CURRENT_DATE)) ||'/'|| DATE_PART('month',(SELECT CURRENT_DATE)) ||'/'|| DATE_PART('YEAR',(SELECT CURRENT_DATE)) ||'|'||
+                                    case motativo
+                                    when true then 1
+                                    else 2 end ||'|'||
+                                    '0' ||'|' as MotoridtaSitCnh
+                                    FROM public.fro_mot m
+                                    join fro_pes p on (p.pescod = m.motpescod) """,
+
+        'Abastecimento' : f""" SELECT
+                                {codEntidade} ||'|'||
+                                coalesce(cast(a.abastecimentocod as varchar), '') ||'|'||
+                                coalesce(cast(a.veicod as varchar), '') ||'|'||
+                                coalesce(v.veicodbenpat, '') ||'|'||
+                                coalesce(cast(a.combcod as varchar),'') ||'|'||
+                                case c.combdes
+                                when 'ALCOOL' then 'ALCOOL COMUM'
+                                when 'DIESEL S10' then 'OLEO DIESEL S-10' else c.combdes end ||'|'||
+                                case coalesce(cast(a.solicitantecodigo as varchar),'')
+                                when '0' then '22732' else coalesce(cast(a.solicitantecodigo as varchar),'') end ||'|'||
+                                coalesce(replace (cast(a.abastecimentovalorun as varchar), '.',','),'') ||'|'||
+                                coalesce(substring(cast(a.abastecimentodatahora as varchar) from 9 for 2) ||'/'|| substring(cast(a.abastecimentodatahora as varchar) from 6 for 2) ||'/'|| substring(cast(a.abastecimentodatahora as varchar) from 1 for 4) ||' '|| substring(cast(a.abastecimentodatahora as varchar) from 12 for 8),'') ||'|'||
+                                coalesce(replace(cast(a.abastecimentoqtd as varchar), '.', ','),'') ||'|'||
+                                coalesce(replace(cast(a.abastecimentovalorun * a.abastecimentoqtd as varchar),'.',','),'') ||'|'||
+                                '1' ||'|'|| --1 Completo
+                                coalesce(replace(replace(coalesce(cast(a.abastecimentodoc as varchar),''),'/',''),'.', ''),'') ||'|'||
+                                coalesce(regexp_replace(a.abastecimentoobservacao, E'[\n\r]+', ' ', 'g' ),'') ||'|'||
+                                case when a.forpescod = 0 then '25149' else replace(coalesce(cast (a.forpescod as varchar),''),'.', '') end ||'|'||
+                                coalesce(replace(replace(replace(p.pescpfcnpj, '.',''), '/',''), '-',''),'77488005000806') ||'|'||
+                                coalesce(replace(cast (a.solicitantecodigo as varchar), '0', ''), '') ||'|'||
+                                a.cccod ||'|'||
+                                '' ||'|'||
+                                case a.abastecimentodanificado
+                                when 'S' then '2'
+                                when 'N' then '1' else 1 end ||'|'||
+                                '' ||'|'||
+                                '' ||'|'||
+                                '' ||'|'||
+                                '' ||'|'||
+                                {codEntidade} ||'|'||
+                                {codEntidade} ||'|'||
+                                coalesce(cast(a.abastecimentoempano as varchar), '') ||'|'||
+                                coalesce(a.abastecimentoempnum, '') ||'|'||
+                                coalesce(cast(a.abastecimentoempano as varchar), '') ||'|'||
+                                39 ||'|' as exportAbastecimento
+                                FROM public.fro_abastecimentos a
+                                join fro_veic v on (v.veicod = a.veicod)
+                                join fro_comb c on (c.combcod = a.combcod)
+                                left join fro_pes p on (p.pescod = a.forpescod)
+                                order by a.abastecimentocod """,
+
+        'Acumulador' : f""" SELECT
+                            {codEntidade} ||'|'||
+                            coalesce(cast(a.veicod as varchar), '') ||'|'||
+                            coalesce(v.veicodbenpat, '') ||'|'||
+                            coalesce(substring(cast(a.abastecimentodatahora as varchar) from 9 for 2) ||'/'|| substring(cast(a.abastecimentodatahora as varchar) from 6 for 2) ||'/'|| substring(cast(a.abastecimentodatahora as varchar) from 1 for 4) ||' '|| substring(cast(a.abastecimentodatahora as varchar) from 12 for 8),'') ||'|'||
+                            '2' ||'|'|| --2 = Abastecimento
+                            coalesce(cast(a.abastecimentocod as varchar), '') ||'|'||
+                            replace(cast(a.abastecimentokmhr as varchar), '.', ',') ||'|'||
+                            replace(cast(a.abastecimentokmhr as varchar), '.', ',') ||'|' as Acumulador
+                            FROM public.fro_abastecimentos a
+                            join fro_veic v on (v.veicod = a.veicod)
+                            join fro_comb c on (c.combcod = a.combcod)
+                            union all
+                            SELECT
+                            {codEntidade} ||'|'||
+                            s.veicod ||'|'||
+                            '' ||'|'||
+                            coalesce(substring(cast(s.mandat as varchar) from 9 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 6 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 1 for 4), '') || ' 00:00:' ||lpad(substring(LPAD(cast(s.mancod + 1 as varchar),6,'0') from 6 for 1), 2, '0') ||'|'||
+                            '3' ||'|'|| -- 3= Ordem de Serviço
+                            '' ||'|'||
+                            replace(cast(s.manveikmhr as varchar), '.',',') ||'|'||
+                            replace(cast(s.manveikmhr as varchar), '.',',') ||'|'
+                            from fro_man s """,
+
+        'VeiculoControleSimAm' : f""" select
+                                    {codEntidade} ||'|'||
+                                    csa.veicod ||'|'||
+                                    csa.veihodhorseq ||'|'||
+                                    2 ||'|'||
+                                    coalesce(substring(cast(csa.veihodhordatcad as varchar) from 9 for 2) ||'/'|| substring(cast(csa.veihodhordatcad as varchar) from 6 for 2) ||'/'|| substring(cast(csa.veihodhordatcad as varchar) from 1 for 4), '') ||'|'||
+                                    replace(cast(csa.veihodhorkmhr as varchar), '.', '') ||'|'||
+                                    coalesce(csa.veihodhormot, '') ||'|'||
+                                    '' ||'|'||
+                                    1 ||'|'||
+                                    replace(cast(csa.veihodhorkmhr as varchar), '.', ',') ||'|'||
+                                    replace(cast(coalesce(csa.veihodhorkmhrfin, csa.veihodhorkmhr) as varchar), '.', ',') ||'|'||
+                                    replace(cast(csa.veihodhorkmhr as varchar), '.', ',') ||'|'||
+                                    coalesce(substring(cast(csa.veihodhordatcad as varchar) from 9 for 2) ||'/'|| substring(cast(csa.veihodhordatcad as varchar) from 6 for 2) ||'/'|| substring(cast(csa.veihodhordatcad as varchar) from 1 for 4), '') ||'|'
+                                    from FRO_VEIC_HODHOR csa
+                                    order by csa.veicod, csa.veihodhorseq """,
+
+        'OrdemAbastecimento' : f""" SELECT
+                                    {codEntidade} ||'|'||
+                                    r.requisicaocod ||'|'||
+                                    r.veicod ||'|'||
+                                    r.reqforpescod ||'|'||
+                                    coalesce(replace(replace(replace(f.pescpfcnpj, '.',''), '/',''), '-',''),'77488005000806') ||'|'||
+                                    case coalesce(cast(r.pescod as varchar),'')
+                                    when '0' then '22732' else coalesce(cast(r.pescod as varchar),'') end ||'|'||
+                                    coalesce(substring(cast(r.requisicaodata as varchar) from 9 for 2) ||'/'|| substring(cast(r.requisicaodata as varchar) from 6 for 2) ||'/'|| substring(cast(r.requisicaodata as varchar) from 1 for 4),'') ||'|'||
+                                    case c.combdes
+                                    when 'OLEO' then '98714'
+                                    when 'GASOLINA' then '115754'
+                                    when 'ALCOOL' then '3'
+                                    when 'DIESEL S10' then '1801'
+                                    when 'DIESEL' then '116259' else '' end ||'|'||
+                                    '1' ||'|'|| --1 Completo
+                                    coalesce(replace(cast(r.requisicaoquantidade as varchar), '.', ','),'0,00') ||'|'||
+                                    coalesce(cast (a.abastecimentocod as varchar), '') ||'|'||
+                                    '' ||'|'||
+                                    0 ||'|'|| -- 0 = Sem Licitação
+                                    '' ||'|'||
+                                    '' ||'|'||
+                                    case cast(r.resppescod as varchar)
+                                    when '0' then '' else cast(r.resppescod as varchar) end ||'|'||
+                                    coalesce(replace(replace(replace(p.pescpfcnpj, '.',''), '/',''), '-',''),'') ||'|'||
+                                    r.cccod ||'|'||
+                                    coalesce(regexp_replace(r.requisicaoobservacao, E'[\\n\\r]+', ' ', 'g' ),'') ||'|'||
+                                    coalesce(replace(cast(r.requisicaokmhr as varchar), '.', ','),'') ||'|'||
+                                    coalesce(replace(cast(r.requisicaokmhr as varchar), '.', ','),'') ||'|'
+                                    FROM public.fro_requisicao r
+                                    left join public.fro_abastecimentos a on (a.abastecimentoreqcod = r.requisicaocod)
+                                    left join fro_pes f on (f.pescod = r.reqforpescod)
+                                    left join fro_pes p on (p.pescod = r.resppescod)
+                                    left join fro_comb c on (c.combcod = r.combcod)
+                                    order by r.requisicaocod """,
+
+        'VeiculoOrdemServico' : f""" select
+                                    {codEntidade} ||'|'||
+                                    s.mancod ||'|'||
+                                    s.veicod ||'|'||
+                                    '' ||'|'||
+                                    'Serviços Mecanico em Geral' ||'|'||
+                                    coalesce(substring(cast(s.mandat as varchar) from 9 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 6 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 1 for 4), '') ||'|'||
+                                    coalesce(substring(cast(s.mandat as varchar) from 9 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 6 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 1 for 4), '') || ' 00:00:' ||lpad(substring(LPAD(cast(s.mancod as varchar),6,'0') from 6 for 1), 2, '0') ||'|'||
+                                    coalesce(substring(cast(s.mandat as varchar) from 9 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 6 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 1 for 4), '') || ' 00:00:' ||lpad(substring(LPAD(cast(s.mancod + 1 as varchar),6,'0') from 6 for 1), 2, '0') ||'|'||
+                                    coalesce(substring(cast(s.mandat as varchar) from 9 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 6 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 1 for 4), '') || ' 00:00:' ||lpad(substring(LPAD(cast(s.mancod + 2 as varchar),6,'0') from 6 for 1), 2, '0') ||'|'||
+                                    coalesce(substring(cast(s.mandat as varchar) from 9 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 6 for 2) ||'/'|| substring(cast(s.mandat as varchar) from 1 for 4), '') || ' 00:00:' ||lpad(substring(LPAD(cast(s.mancod + 3 as varchar),6,'0') from 6 for 1), 2, '0') ||'|'||
+                                    s.manobs ||'|'||
+                                    1 ||'|'|| -- 1-Sim
+                                    '' ||'|'||
+                                    '' ||'|'||
+                                    '' ||'|'||
+                                    l.ccdes ||'|'||
+                                    l.ccdes ||'|'||
+                                    l.ccdes ||'|'||
+                                    s.cccod ||'|'
+                                    from fro_man s
+                                    join fro_cc l on (l.cccod = s.cccod)
+                                    order by s.mancod """,
+
+        'VeiculoOrdemServicoProduto' : f""" select
+                                            {codEntidade} ||'|'||
+                                            m2.mancod ||'|'||
+                                            '' ||'|'||
+                                            substring (upper(i.iteetqdes) from 1 for 70 ) ||'|'||
+                                            replace(cast(m2.maniteqtd as varchar),'.', ',') ||'|'||
+                                            replace(cast(m2.maniteqtd * m2.manitevlruni as varchar), '.', ',') ||'|'||
+                                            m2.maniteseq ||'|'||
+                                            '' ||'|'||
+                                            '' ||'|'
+                                            from fro_man2 m2
+                                            join fro_iteetq i on (i.iteetqcod = m2.iteetqcod) """
 
         }

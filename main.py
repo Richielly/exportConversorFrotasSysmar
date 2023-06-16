@@ -146,7 +146,8 @@ def main(page: ft.Page):
 
 if __name__ == "__main__":
     # ft.app(port=3636, target=main, view=ft.WEB_BROWSER)
-    ft.app(port=3333, target=main)
+    ft.app(port=4444, target=main)
 
 
-#  pyinstaller --name export_conversor_frotas_sysmar --onefile --icon=img.ico --noconsole main.py
+#  pyinstaller --name export_conversor_frotas_sysmar --onefile --icon=transferencia-de-dados.ico --noconsole main.py
+# flet pack --name export_conversor_frotas_sysmar --icon=transferencia-de-dados.ico main.py
