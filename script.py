@@ -173,8 +173,17 @@ class Script:
                                 distinct
                                 {codEntidade} ||'|'||
                                 coalesce(cast(a.veicod as varchar), '') ||'|'||
-                                coalesce(cast(a.combcod as varchar),'') ||'|'||
-                                coalesce(c.combdes, '') ||'|' as veiculoProduto
+                                case c.combcod
+                                    when '1' then '23401'
+                                    when '2' then '23402'
+                                    when '3' then '23403'
+                                    when '8' then '24595' else '' end ||'|'||
+                                case c.combdes
+                                    when 'GASOLINA' then 'COMBUSTÍVEL - GASOLINA'
+                                    when 'DIESEL' then 'COMBUSTÍVEL - DIESEL COMUM'
+                                    when 'DIESEL S-10' then 'COMBUSTÍVEL - DIESEL S-10'
+                                    when 'ETANOL' then 'COMBUSTÍVEL - ÁLCOOL (ETANOL)' else c.combdes end ||'|' as veiculoProduto
+                                
                                 FROM public.fro_abastecimentos a
                                 join fro_comb c on (c.combcod = a.combcod) """,
 
@@ -202,7 +211,7 @@ class Script:
                                 case c.combdes
                                     when 'GASOLINA' then 'COMBUSTÍVEL - GASOLINA'
                                     when 'DIESEL' then 'COMBUSTÍVEL - DIESEL COMUM'
-                                    when 'DIESEL S-10' then 'COMBUSTÍVEL     -     DIESEL S-10'
+                                    when 'DIESEL S-10' then 'COMBUSTÍVEL - DIESEL S-10'
                                     when 'ETANOL' then 'COMBUSTÍVEL - ÁLCOOL (ETANOL)' else c.combdes end ||'|'||
                                 case coalesce(cast(a.solicitantecodigo as varchar),'')
                                     when '0' then '22732' else coalesce(cast(a.solicitantecodigo as varchar),'') end ||'|'||
@@ -228,7 +237,7 @@ class Script:
                                 {codEntidade} ||'|'||
                                 {codEntidade} ||'|'||
                                 coalesce(cast(a.abastecimentoempano as varchar), '') ||'|'||
-                                coalesce(a.abastecimentoempnum, '') ||'|'||
+                                coalesce(REGEXP_REPLACE(cast(a.abastecimentoempnum as varchar), '\D', '', 'g'), '') ||'|'||
                                 coalesce(cast(a.abastecimentoempano as varchar), '') ||'|'||
                                 {codEntidade} ||'|' as exportAbastecimento
                                 FROM public.fro_abastecimentos a
