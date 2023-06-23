@@ -214,11 +214,11 @@ class Script:
                                     when 'DIESEL S-10' then 'COMBUSTÍVEL - DIESEL S-10'
                                     when 'ETANOL' then 'COMBUSTÍVEL - ÁLCOOL (ETANOL)' else c.combdes end ||'|'||
                                 case coalesce(cast(a.solicitantecodigo as varchar),'')
-                                    when '0' then '22732' else coalesce(cast(a.solicitantecodigo as varchar),'') end ||'|'||
-                                coalesce(replace (cast(a.abastecimentovalorun as varchar), '.',','),'') ||'|'||
+                                    when '0' then '101' else coalesce(cast(a.solicitantecodigo as varchar),'101') end ||'|'||
+                                coalesce(replace (cast(a.abastecimentovalorun as varchar), '.',','),'0') ||'|'||
                                 coalesce(substring(cast(a.abastecimentodatahora as varchar) from 9 for 2) ||'/'|| substring(cast(a.abastecimentodatahora as varchar) from 6 for 2) ||'/'|| substring(cast(a.abastecimentodatahora as varchar) from 1 for 4) ||' '|| substring(cast(a.abastecimentodatahora as varchar) from 12 for 8),'') ||'|'||
                                 coalesce(replace(cast(a.abastecimentoqtd as varchar), '.', ','),'') ||'|'||
-                                coalesce(replace(cast(a.abastecimentovalorun * a.abastecimentoqtd as varchar),'.',','),'') ||'|'||
+                                coalesce(replace(cast(a.abastecimentovalorun * a.abastecimentoqtd as varchar),'.',','),'0') ||'|'||
                                 '1' ||'|'|| --1 Completo
                                 coalesce(REGEXP_REPLACE(cast(a.abastecimentodoc as varchar), '\D', '', 'g'), '') ||'|'||
                                 coalesce(regexp_replace(a.abastecimentoobservacao, E'[\n\r]+', ' ', 'g' ),'') ||'|'||
