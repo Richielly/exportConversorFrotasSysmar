@@ -8,7 +8,7 @@ from time import sleep
 import util as utl
 import psycopg2
 
-import update_sequence
+import update_sequence, read_file
 
 cfg = configparser.ConfigParser()
 cfg.read('cfg.ini')
@@ -119,6 +119,14 @@ def main(page: ft.Page):
             txt_header.value = "As sequências não foram atualizadas, verifique manualmente!\n " + str(msg)
         page.update()
 
+    def gerar_arquivos_simam(e):
+        reade_file = read_file.Read_file()
+        status = reade_file.buscar_arquivo_hodometro_horimetro(txt_caminho_arquivo_sim_am.value, txt_caminho_arquivo_sim_am_destino.value,txt_entidade_arquivo_sim_am.value)
+        status = reade_file.buscar_arquivo_consumo(txt_caminho_arquivo_sim_am.value, txt_caminho_arquivo_sim_am_destino.value,txt_entidade_arquivo_sim_am.value)
+
+        txt_header.value = 'Arquivo ' + str(status)
+        page.update()
+
     ft.Divider(height=9, thickness=3),
     txt_entidade = ft.TextField(label="Entidade", text_size=12, value=cfg['DEFAULT']['CodEntidade'], width=100, height=35, disabled=False, tooltip='Alterar o código de entidade, tambem altera o arquivo "cfg.ini"')
     txt_host = ft.TextField(label="Host", text_size=12, value=cfg['DEFAULT']['Host'], width=100, height=35)
@@ -142,6 +150,15 @@ def main(page: ft.Page):
     page.add(ft.Row([txt_host_sequence, txt_port_sequence, txt_user_sequence, txt_password_sequence, txt_database_sequence]))
     page.add(ft.Row([ft.ElevatedButton("Atualizar Sequências", on_click=atualizar_sequence, icon=ft.icons.SETTINGS)]))
     page.add(ft.Divider(height=2, thickness=3))
+
+    page.add(ft.Divider(height=2, thickness=3))
+    txt_caminho_arquivo_sim_am = ft.TextField(label="Caminho do Arquivo SimAm", text_size=12, width=520, height=30)
+    txt_caminho_arquivo_sim_am_destino = ft.TextField(label="Destino Arquivo SimAm", text_size=12, width=520, height=30)
+    txt_entidade_arquivo_sim_am = ft.TextField(label="Entidade SimAm", value=cfg['DEFAULT']['codentidade'], text_size=12, height=30, width=150)
+    page.add(ft.Row([txt_entidade_arquivo_sim_am, txt_caminho_arquivo_sim_am,txt_caminho_arquivo_sim_am_destino]))
+    page.add(ft.Row([ft.ElevatedButton("Gerar Arquivos do Sim Am", on_click=gerar_arquivos_simam, icon=ft.icons.PAGES)]))
+    page.add(ft.Divider(height=2, thickness=3))
+
     page.add(txt_header)
 
 if __name__ == "__main__":
