@@ -59,10 +59,10 @@ def main(page: ft.Page):
                 for inf in result:
                     arquivo.write(str(inf[0]).replace('#sec#', str(r(0, 5)) + str(r(0, 9))) + '\n')
                 if len(result) < 1:
-                    list_arquivos.controls.append(ft.Text('-- Finalizado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16, color=ft.colors.ORANGE))
+                    list_arquivos.controls.append(ft.Text('  ❗ Finalizado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16, color=ft.colors.ORANGE))
                     sem_dados+=1
                 else:
-                    list_arquivos.controls.append(ft.Text('-- Finalizado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16))
+                    list_arquivos.controls.append(ft.Text('  ✅ Finalizado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16))
                     com_dados+=1
                 for i in range(0, len(comandos)+1):
                     progressBar.value = step / len(comandos)
@@ -93,6 +93,7 @@ def main(page: ft.Page):
 
             log = start(host=host, port=port, user=user, password=password, database=database, comandos=comandos)
             if log != None:
+                list_arquivos.update()
                 txt_header.value = log
                 list_arquivos.controls.clear()
                 progressBar.value=0
@@ -103,31 +104,46 @@ def main(page: ft.Page):
             page.update()
     def atualizar_sequence(e):
         atualiza = update_sequence.Update_sequence()
-
         list_arquivos.controls.clear()
-
-        database_sequence = txt_database_sequence.value
-        host_sequence = txt_host_sequence.value
-        user_sequence = txt_user_sequence.value
-        port_sequence = txt_port_sequence.value
-        password_sequence = txt_password_sequence.value
-
-        status, msg = atualiza.atualiza_sequence(host=host_sequence, port=port_sequence, user=user_sequence, password=password_sequence, database=database_sequence)
-        if atualiza:
-            txt_header.value = str(status)+"\n" + str(msg)
+        if not txt_database_sequence.value:
+            txt_database_sequence.error_text = "Informe o caminho do Banco"
+            page.update()
         else:
-            txt_header.value = "As sequências não foram atualizadas, verifique manualmente!\n " + str(msg)
-        page.update()
+            database_sequence = txt_database_sequence.value
+            host_sequence = txt_host_sequence.value
+            user_sequence = txt_user_sequence.value
+            port_sequence = txt_port_sequence.value
+            password_sequence = txt_password_sequence.value
 
+            status, msg = atualiza.atualiza_sequence(host=host_sequence, port=port_sequence, user=user_sequence, password=password_sequence, database=database_sequence)
+            if atualiza:
+                atualizados = []
+                for m in msg:
+                    sleep(0.5)
+                    if m[0] != None:
+                        txt_header.value = "\n" + str(m[0])
+                        page.update()
+                        atualizados.append(str(m[0]))
+            else:
+                txt_header.value = "As sequências não foram atualizadas, verifique manualmente!\n " + str(msg)
+            txt_header.value = "Sequências atualizadas: ✅ " + str(atualizados) + '✅'
+            page.update()
     def gerar_arquivos_simam(e):
+        list_arquivos.controls.clear()
         reade_file = read_file.Read_file()
-        status = reade_file.buscar_arquivo_hodometro_horimetro(txt_caminho_arquivo_sim_am.value, txt_caminho_arquivo_sim_am_destino.value,txt_entidade_arquivo_sim_am.value)
-        status = reade_file.buscar_arquivo_consumo(txt_caminho_arquivo_sim_am.value, txt_caminho_arquivo_sim_am_destino.value,txt_entidade_arquivo_sim_am.value)
 
-        txt_header.value = 'Arquivo ' + str(status)
-        page.update()
+        if not txt_caminho_arquivo_sim_am.value or not txt_caminho_arquivo_sim_am_destino.value:
+            txt_header.value = " ⛔ Informe os caminhos de origem e destino dos arquivos."
+            page.update()
+        else:
+            status_1 = reade_file.buscar_arquivo_hodometro_horimetro(txt_caminho_arquivo_sim_am.value + '/', txt_caminho_arquivo_sim_am_destino.value + '/',txt_entidade_arquivo_sim_am.value)
+            status_2 = reade_file.buscar_arquivo_consumo(txt_caminho_arquivo_sim_am.value + '/', txt_caminho_arquivo_sim_am_destino.value + '/',txt_entidade_arquivo_sim_am.value)
 
-    ft.Divider(height=9, thickness=3),
+            txt_header.value = 'Arquivo HodometroHorimetro ➡️' + str(status_1)+ '✅' + '\nArquivo Consumo ➡️' + str(status_2) +'✅'
+            page.update()
+
+    ft.Divider(height=9, thickness=3)
+    page.add(ft.Text("Expostador Sysmar para Sistema de Frotas", size=20, color='blue'))
     txt_entidade = ft.TextField(label="Entidade", text_size=12, value=cfg['DEFAULT']['CodEntidade'], width=100, height=35, disabled=False, tooltip='Alterar o código de entidade, tambem altera o arquivo "cfg.ini"')
     txt_host = ft.TextField(label="Host", text_size=12, value=cfg['DEFAULT']['Host'], width=100, height=35)
     txt_user = ft.TextField(label="User", text_size=12, value=cfg['DEFAULT']['User'], width=250, height=35)
@@ -142,21 +158,26 @@ def main(page: ft.Page):
     page.add(ft.Row([ft.ElevatedButton("Gerar Arquivos", on_click=btn_click, icon=ft.icons.ADD_BOX)]))
     list_arquivos = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
     page.add(ft.Divider(height=2, thickness=3))
-    txt_host_sequence = ft.TextField(label="Host", text_size=12, value='localhost', width=100, height=30)
-    txt_user_sequence = ft.TextField(label="User", text_size=12, value='sysdba', width=100, height=30)
-    txt_password_sequence = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=30, password=True, can_reveal_password=True)
-    txt_database_sequence = ft.TextField(label="Caminho do Banco para nova sequência", value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=30, width=776)
-    txt_port_sequence = ft.TextField(label="Porta", text_size=12, value=3050, width=100, height=30)
-    page.add(ft.Row([txt_host_sequence, txt_port_sequence, txt_user_sequence, txt_password_sequence, txt_database_sequence]))
-    page.add(ft.Row([ft.ElevatedButton("Atualizar Sequências", on_click=atualizar_sequence, icon=ft.icons.SETTINGS)]))
     page.add(ft.Divider(height=2, thickness=3))
-
-    page.add(ft.Divider(height=2, thickness=3))
+    page.add(ft.Text("Gerador de Arquivos Sim Am", size=20, color='blue'))
     txt_caminho_arquivo_sim_am = ft.TextField(label="Caminho do Arquivo SimAm", text_size=12, width=520, height=30)
     txt_caminho_arquivo_sim_am_destino = ft.TextField(label="Destino Arquivo SimAm", text_size=12, width=520, height=30)
     txt_entidade_arquivo_sim_am = ft.TextField(label="Entidade SimAm", value=cfg['DEFAULT']['codentidade'], text_size=12, height=30, width=150)
     page.add(ft.Row([txt_entidade_arquivo_sim_am, txt_caminho_arquivo_sim_am,txt_caminho_arquivo_sim_am_destino]))
     page.add(ft.Row([ft.ElevatedButton("Gerar Arquivos do Sim Am", on_click=gerar_arquivos_simam, icon=ft.icons.PAGES)]))
+    page.add(ft.Divider(height=2, thickness=3))
+    page.add(ft.Divider(height=2, thickness=3))
+    page.add(ft.Text("Atualiza Sequências", size=20, color='blue'))
+    txt_host_sequence = ft.TextField(label="Host", text_size=12, value='localhost', width=100, height=40)
+    txt_user_sequence = ft.TextField(label="User", text_size=12, value='sysdba', width=100, height=40)
+    txt_password_sequence = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=40,
+                                         password=True, can_reveal_password=True)
+    txt_database_sequence = ft.TextField(label="Caminho do Banco para nova sequência",
+                                         value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=40, width=776)
+    txt_port_sequence = ft.TextField(label="Porta", text_size=12, value=3050, width=100, height=40)
+    page.add(
+        ft.Row([txt_host_sequence, txt_port_sequence, txt_user_sequence, txt_password_sequence, txt_database_sequence]))
+    page.add(ft.Row([ft.ElevatedButton("Atualizar Sequências", on_click=atualizar_sequence, icon=ft.icons.SETTINGS)]))
     page.add(ft.Divider(height=2, thickness=3))
 
     page.add(txt_header)
