@@ -91,9 +91,9 @@ class Script:
                             coalesce(substring(cast(m.mothabdatpri as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatpri as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatpri as varchar) from 1 for 4), '') ||'|'||
                             coalesce(substring(cast(m.mothabdatval as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 1 for 4), '') ||'|'||
                             coalesce(substring(cast(m.mothabdatemis as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 1 for 4), '') ||'|' as motorista
-                            from public.fro_abastecimentos a
-                            join public.fro_pes p on (p.pescod = a.solicitantecodigo)
-                            left join public.fro_mot m on (m.motpescod = a.solicitantecodigo) """,
+                            from public.fro_mot m 
+                            left join public.fro_abastecimentos a on (a.solicitantecodigo = m.motpescod) 
+                            left join public.fro_pes p on (p.pescod = a.solicitantecodigo) """,
 
         'MotoristaCategoriaCnh': f""" SELECT
                                       {codEntidade} ||'|'||
