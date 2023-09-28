@@ -82,7 +82,7 @@ class Script:
         'Motorista' : f""" select
                             distinct
                             {codEntidade} ||'|'||
-                            coalesce(cast(a.solicitantecodigo as varchar), '') ||'|'||
+                            coalesce(cast(m.motpescod as varchar), '') ||'|'||
                             '' ||'|'||
                             coalesce(cast(m.motpescod as varchar), '') ||'|'||
                             coalesce(lpad(cast(replace(replace(p.pescpfcnpj,'.',''),'-','') as varchar),11,'0'),'') ||'|'||
@@ -92,8 +92,7 @@ class Script:
                             coalesce(substring(cast(m.mothabdatval as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 1 for 4), '') ||'|'||
                             coalesce(substring(cast(m.mothabdatemis as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 1 for 4), '') ||'|' as motorista
                             from public.fro_mot m 
-                            left join public.fro_abastecimentos a on (a.solicitantecodigo = m.motpescod) 
-                            left join public.fro_pes p on (p.pescod = a.solicitantecodigo) """,
+							join public.fro_pes p on (p.pescod = m.motpescod) """,
 
         'MotoristaCategoriaCnh': f""" SELECT
                                       {codEntidade} ||'|'||
