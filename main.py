@@ -18,7 +18,7 @@ def main(page: ft.Page):
 
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_center()
-    page.title = "Export Frotas Sysmar"+str(entidade) + "V_0.2.1"
+    page.title = "Export Frotas Sysmar"+str(entidade) + "V_0.2.3"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
 
     def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['password'], password='es74079', port='5432', comandos=''):
@@ -189,4 +189,4 @@ if __name__ == "__main__":
 
 
 #  pyinstaller --name export_conversor_frotas_sysmar --onefile --icon=transferencia-de-dados.ico --noconsole main.py
-# flet pack --name export_conversor_frotas_sysmar --icon=transferencia-de-dados.ico main.py
+# flet pack --name export_conversor_frotas_sysmar_V_0.2.2 --icon=transferencia-de-dados.ico main.py

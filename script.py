@@ -240,10 +240,41 @@ class Script:
                                 coalesce(cast(a.abastecimentoempano as varchar), '') ||'|'||
                                 {codEntidade} ||'|' as exportAbastecimento
                                 FROM public.fro_abastecimentos a
-                                join fro_veic v on (v.veicod = a.veicod)
+                                join fro_veic v on (v.veicod = a.veicod and v.veiodom != 'N')
                                 join fro_comb c on (c.combcod = a.combcod)
                                 left join fro_pes p on (p.pescod = a.forpescod)
                                 order by a.abastecimentocod """,
+
+        'EquipamentoConsumoCombustivel': f""" SELECT {codEntidade}||'|'||
+                                ab.veicod||'|'||
+                                TO_CHAR(ab.abastecimentodatahora, 'DD/MM/YYYY HH24:MI:SS')||'|'||
+                                ve.veicodbenpat||'|'||
+                                co.combcod||'|'||
+                                substring (co.combdes from 1 for 70)||'|'||
+                                replace(cast(ab.abastecimentoqtd as varchar), '.', ',')||'|'||
+                                replace(cast(ab.abastecimentovalorun as varchar), '.', ',')||'|'||
+                                replace(cast((ab.abastecimentoqtd * ab.abastecimentovalorun ) as varchar), '.', ',')||'|'||
+                                {codEntidade}||'|'||
+                                ab.abastecimentoempano||'|'||
+                                ab.abastecimentoempnum||'|'||
+				                '' ||'|'||
+                                {codEntidade}||'|'||
+                                ab.abastecimentodoc||'|'||
+                                pe.pescod||'|'||
+                                translate (pe.pescpfcnpj, '.-/','')||'|'||
+                                {codEntidade} ||'|'||
+                                '' ||'|'||
+                                '' ||'|'||
+                                '' ||'|'||
+                                '' ||'|'
+		                        FROM fro_abastecimentos ab
+		                        join fro_veic ve
+		                            on ve.veicod = ab.veicod
+			                        and ve.veiodom = 'N' 
+		                        join fro_comb co
+		                            on co.combcod = ab.combcod
+		                        join fro_pes pe
+		                            on pe.pescod = ab.forpescod """,
 
         'Acumulador' : f""" SELECT
                             {codEntidade} ||'|'||
@@ -273,7 +304,7 @@ class Script:
                                         {codEntidade} ||'|'||
                                         coalesce(cast(csa.veicod as varchar), '') ||'|'||
                                         coalesce(cast(csa.veihodhorseq as varchar), '') ||'|'||
-                                        2 ||'|'||
+                                        1 ||'|'||
                                         coalesce(substring(cast(csa.veihodhordatcad as varchar) from 9 for 2) ||'/'|| substring(cast(csa.veihodhordatcad as varchar) from 6 for 2) ||'/'|| substring(cast(csa.veihodhordatcad as varchar) from 1 for 4), '') ||'|'||
                                         coalesce(replace(cast(csa.veihodhorkmhr as varchar), '.', ''), '0') ||'|'||
                                         coalesce(csa.veihodhormot, '') ||'|'||
