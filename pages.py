@@ -14,11 +14,11 @@ cfg = configparser.ConfigParser()
 cfg.read('cfg.ini')
 entidade = cfg['DEFAULT']['NomeEntidade']
 
-def main(page: ft.Page):
+def pages(page: ft.Page):
 
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_center()
-    page.title = "Export Frotas Sysmar"+str(entidade) + " V_0.2.11"
+    page.title = "Export Frotas Sysmar"+str(entidade) + " V_2.0.0"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
 
     def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['password'], password='es74079', port='5432', comandos=''):
@@ -39,6 +39,7 @@ def main(page: ft.Page):
             return e
 
         cur = dados_conexao.cursor()
+        page.add(txt_header)
         page.add(list_arquivos)
         list_arquivos.clean()
         page.add(progressBar)
@@ -130,45 +131,45 @@ def main(page: ft.Page):
             txt_header.value = "Sequências atualizadas: ✅ " + str(atualizados) + '✅'
             page.update()
     def gerar_arquivos_simam(e):
+        page.add(txt_header)
         list_arquivos.controls.clear()
+
         reade_file = read_file.Read_file()
 
         if not txt_caminho_arquivo_sim_am.value or not txt_caminho_arquivo_sim_am_destino.value:
             txt_header.value = " ⛔ Informe os caminhos de origem e destino dos arquivos."
             page.update()
         else:
+
             status_1 = reade_file.buscar_arquivo_hodometro_horimetro(txt_caminho_arquivo_sim_am.value + '/', txt_caminho_arquivo_sim_am_destino.value + '/',txt_entidade_arquivo_sim_am.value)
             status_2 = reade_file.buscar_arquivo_consumo(txt_caminho_arquivo_sim_am.value + '/', txt_caminho_arquivo_sim_am_destino.value + '/',txt_entidade_arquivo_sim_am.value)
 
             txt_header.value = 'Arquivo HodometroHorimetro ➡️' + str(status_1)+ '✅' + '\nArquivo Consumo ➡️' + str(status_2) +'✅'
             page.update()
 
-    ft.Divider(height=9, thickness=3)
-    page.add(ft.Text("Expostador Sysmar para Sistema de Frotas", size=20, color='blue'))
+    page.add(ft.Text("Exportador Sysmar para Sistema de Frotas", size=20, color='blue'))
+    header_frotas = ft.Text("Gerador de Arquivos das Frotas", size=20, color='blue')
     txt_entidade = ft.TextField(label="Entidade", text_size=12, value=cfg['DEFAULT']['CodEntidade'], width=100, height=35, disabled=False, tooltip='Alterar o código de entidade, tambem altera o arquivo "cfg.ini"')
     txt_host = ft.TextField(label="Host", text_size=12, value=cfg['DEFAULT']['Host'], width=100, height=35)
     txt_user = ft.TextField(label="User", text_size=12, value=cfg['DEFAULT']['User'], width=250, height=35)
     txt_password = ft.TextField(label="Password", text_size=12, value=cfg['DEFAULT']['password'], width=130, height=35,password=True, can_reveal_password=True)
-    txt_database = ft.TextField(label="Nome do Banco", value=cfg['DEFAULT']['NomeBanco'], text_size=12, height=40)
-    txt_local_arquivos = ft.TextField(label="Caminho dos Arquivos gerados", value=cfg['DEFAULT']['DiretorioArquivos'], text_size=12, height=40)
+
+    txt_database = ft.TextField(label="Nome do Banco", value=cfg['DEFAULT']['NomeBanco'], text_size=12, height=40, width=200)
+    txt_local_arquivos = ft.TextField(label="Caminho dos Arquivos gerados", value=cfg['DEFAULT']['DiretorioArquivos'], text_size=12, height=40, width=700)
+    origem_destino = ft.Row([txt_database, txt_local_arquivos])
     txt_port = ft.TextField(label="Porta", text_size=12, value=cfg['DEFAULT']['port'], width=100, height=30)
     txt_header = ft.Text('Arquivos Gerados')
-    page.add(ft.Row([txt_entidade, txt_host, txt_port, txt_user, txt_password]))
-    page.add(txt_database)
-    page.add(txt_local_arquivos)
-    page.add(ft.Row([ft.ElevatedButton("Gerar Arquivos", on_click=btn_click, icon=ft.icons.ADD_BOX)]))
+    dados_banco = ft.Row([txt_entidade, txt_host, txt_port, txt_user, txt_password])
+    btn_gerar_arquivos = ft.ElevatedButton("Gerar Arquivos", on_click=btn_click, icon=ft.icons.ADD_BOX)
     list_arquivos = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
-    page.add(ft.Divider(height=2, thickness=3))
-    page.add(ft.Divider(height=2, thickness=3))
-    page.add(ft.Text("Gerador de Arquivos Sim Am", size=20, color='blue'))
-    txt_caminho_arquivo_sim_am = ft.TextField(label="Caminho do Arquivo SimAm", text_size=12, width=520, height=30)
-    txt_caminho_arquivo_sim_am_destino = ft.TextField(label="Destino Arquivo SimAm", text_size=12, width=520, height=30)
+    divisor = ft.Divider(height=2, thickness=3)
+    header_simam = ft.Text("Gerador de Arquivos Sim Am", size=20, color='blue')
+    txt_caminho_arquivo_sim_am = ft.TextField(label="Caminho do Arquivo SimAm", text_size=12, width=540, height=30)
+    txt_caminho_arquivo_sim_am_destino = ft.TextField(label="Destino Arquivo SimAm", text_size=12, width=700, height=30)
     txt_entidade_arquivo_sim_am = ft.TextField(label="Entidade SimAm", value=cfg['DEFAULT']['codentidade'], text_size=12, height=30, width=150)
-    page.add(ft.Row([txt_entidade_arquivo_sim_am, txt_caminho_arquivo_sim_am,txt_caminho_arquivo_sim_am_destino]))
-    page.add(ft.Row([ft.ElevatedButton("Gerar Arquivos do Sim Am", on_click=gerar_arquivos_simam, icon=ft.icons.PAGES)]))
-    page.add(ft.Divider(height=2, thickness=3))
-    page.add(ft.Divider(height=2, thickness=3))
-    page.add(ft.Text("Atualiza Sequências", size=20, color='blue'))
+    dados_caminho_simAm = ft.Row([txt_entidade_arquivo_sim_am, txt_caminho_arquivo_sim_am])
+    btn_gerar_arquivos_simam = ft.Row([ft.ElevatedButton("Gerar Arquivos do Sim Am", on_click=gerar_arquivos_simam, icon=ft.icons.PAGES)])
+    header_sequence = ft.Text("Atualiza Sequências", size=20, color='blue')
     txt_host_sequence = ft.TextField(label="Host", text_size=12, value='localhost', width=100, height=40)
     txt_user_sequence = ft.TextField(label="User", text_size=12, value='sysdba', width=100, height=40)
     txt_password_sequence = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=40,
@@ -176,17 +177,46 @@ def main(page: ft.Page):
     txt_database_sequence = ft.TextField(label="Caminho do Banco para nova sequência",
                                          value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=40, width=776)
     txt_port_sequence = ft.TextField(label="Porta", text_size=12, value=3050, width=100, height=40)
-    page.add(
-        ft.Row([txt_host_sequence, txt_port_sequence, txt_user_sequence, txt_password_sequence, txt_database_sequence]))
-    page.add(ft.Row([ft.ElevatedButton("Atualizar Sequências", on_click=atualizar_sequence, icon=ft.icons.SETTINGS)]))
-    page.add(ft.Divider(height=2, thickness=3))
+    dados_banco_sequencia = ft.Row([txt_host_sequence, txt_port_sequence, txt_user_sequence, txt_password_sequence])
+    btn_atualizar_sequencia = ft.Row([ft.ElevatedButton("Atualizar Sequências", on_click=atualizar_sequence, icon=ft.icons.SETTINGS)])
 
-    page.add(txt_header)
+
+    t = ft.Tabs(
+        selected_index=0,
+        animation_duration=300,
+        tabs=[
+            ft.Tab(
+                text="Gerar Arquivos Frotas",
+                icon=ft.icons.CAR_REPAIR,
+                content=ft.Container(
+                    content=ft.Column([header_frotas, divisor, dados_banco, origem_destino, btn_gerar_arquivos]), alignment=ft.alignment.center,padding=15
+                ),
+            ),
+            ft.Tab(
+                text="Arquivos Sim Am",
+                icon=ft.icons.SEARCH,
+                content=ft.Container(
+                    content=ft.Column([header_simam, divisor, dados_caminho_simAm,txt_caminho_arquivo_sim_am_destino, btn_gerar_arquivos_simam]), alignment=ft.alignment.center,padding=15
+                ),
+            ),
+            ft.Tab(
+                text="Atualizar Sequências",
+                icon=ft.icons.SETTINGS,
+                content=ft.Container(
+                    content=ft.Column([header_sequence, divisor, dados_banco_sequencia, txt_database_sequence, btn_atualizar_sequencia]), alignment=ft.alignment.center, padding=15
+                ),
+            ),
+        ],
+        expand=1,
+    )
+
+    page.add(t)
+    list_arquivos = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
+
 
 if __name__ == "__main__":
     # ft.app(port=3636, target=main, view=ft.WEB_BROWSER)
-    ft.app(port=4444, target=main)
-
+    ft.app(target=pages)
 
 #  pyinstaller --name export_conversor_frotas_sysmar --onefile --icon=transferencia-de-dados.ico --noconsole main.py
 # flet pack --name export_conversor_frotas_sysmar_V_0.2.2 --icon=transferencia-de-dados.ico main.py

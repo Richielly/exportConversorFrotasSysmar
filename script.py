@@ -4,6 +4,7 @@ class Script:
     def query(self, codEntidade):
         cfg = configparser.ConfigParser()
         cfg.read('cfg.ini')
+        motorista = cfg['DEFAULT']['motorista']
 
         return {
         'Cor' : f""" select cordes ||'|' from fro_cor """,
@@ -80,26 +81,44 @@ class Script:
                         join fro_mar m on (m.marcod = fp.marcod) """,
 
         'Motorista' : f""" select
-                            distinct
-                            {codEntidade} ||'|'||
-                            coalesce(cast(m.motpescod as varchar), '') ||'|'||
-                            '' ||'|'||
-                            coalesce(cast(m.motpescod as varchar), '') ||'|'||
-                            coalesce(lpad(cast(replace(replace(p.pescpfcnpj,'.',''),'-','') as varchar),11,'0'),'') ||'|'||
-                            coalesce(cast(m.mothabreg as varchar), '') ||'|'||
-                            '1' ||'|'||
-                            coalesce(substring(cast(m.mothabdatpri as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatpri as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatpri as varchar) from 1 for 4), '') ||'|'||
-                            coalesce(substring(cast(m.mothabdatval as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 1 for 4), '') ||'|'||
-                            coalesce(substring(cast(m.mothabdatemis as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 1 for 4), '') ||'|' as motorista
-                            from public.fro_mot m 
-							join public.fro_pes p on (p.pescod = m.motpescod) """,
+                     distinct 
+                     {codEntidade} ||'|'||
+                     coalesce(cast(p.pescod as varchar), '')||'|'||
+                     '' ||'|'||
+                     coalesce(cast(p.pescod as varchar), '')||'|'||
+                     coalesce(cast(replace(replace(p.pescpfcnpj,'.',''),'-','') as varchar),'')||'|'||
+                     coalesce(cast(m.mothabreg as varchar), '') ||'|'||
+                     '1' ||'|'||
+                     coalesce(substring(cast(m.mothabdatpri as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatpri as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatpri as varchar) from 1 for 4), '') ||'|'||
+                     coalesce(substring(cast(m.mothabdatval as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatval as varchar) from 1 for 4), '') ||'|'||
+                     coalesce(substring(cast(m.mothabdatemis as varchar) from 9 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 6 for 2) ||'/'|| substring(cast(m.mothabdatemis as varchar) from 1 for 4), '') ||'|' as motorista
+                     from public.fro_mot m 
+					 join public.fro_pes p
+					   on p.pescod = m.motpescod					
+					  union all
+                     select
+                     distinct 
+                     {codEntidade} ||'|'||
+                     coalesce(cast(p.pescod as varchar), '')||'|'||
+                     '' ||'|'||
+                     coalesce(cast(p.pescod as varchar), '')||'|'||
+                     coalesce(cast(replace(replace(p.pescpfcnpj,'.',''),'-','') as varchar),'')||'|'
+                     ||'|'
+                     '1' ||'|'
+                     ||'|'
+                     ||'|'
+                     ||'|' as motorista
+		     from fro_abastecimentos a
+			 join fro_pes p
+					  on p.pescod = a.solicitantecodigo
+	                 and a.solicitantecodigo not in (select motpescod from fro_mot) """,
 
-        'MotoristaCategoriaCnh': f""" SELECT
-                                      {codEntidade} ||'|'||
-                                      m.motpescod ||'|'||
-                                      regexp_split_to_table(m.mothabcat, '') ||'|' as MotoristaCatCnh
-                                      FROM public.fro_mot m
-                                      JOIN fro_pes p ON p.pescod = m.motpescod """,
+        'MotoristaCategoriaCnh':f""" SELECT
+                                    {codEntidade} ||'|'||
+                                    m.motpescod ||'|'||
+                                    regexp_split_to_table(m.mothabcat, '') ||'|'
+                                    FROM public.fro_mot m
+                                    JOIN fro_pes p ON p.pescod = m.motpescod; """,
 
         'Veiculo' : f""" SELECT
                         {codEntidade} ||'|'||
@@ -119,6 +138,7 @@ class Script:
                         when 99 then 'OUTROS EQUIPAMENTOS'
                         when 999 then 'OUTROS TIPOS DE VEÍCULOS E EQUIPAMENTOS' end ||'|'||
                         v.veides ||'|'||
+                        v.veifipecod ||'|'||
                         coalesce(c.cordes,'1') ||'|'|| --incluir padrão
                         coalesce(v.veirenavam, '') ||'|'||
                         coalesce(v.veichassi, '') ||'|'||
@@ -145,7 +165,7 @@ class Script:
                         case p.combdes
                             when 'GASOLINA' then 'COMBUSTÍVEL - GASOLINA'
                             when 'DIESEL' then 'COMBUSTÍVEL - DIESEL COMUM'
-                            when 'DIESEL S-10' then 'COMBUSTÍVEL - DIESEL S-10'
+                            when 'DIESEL S-10' then 'COMBUSTÍVEL     -     DIESEL S-10'
                             when 'ETANOL' then 'COMBUSTÍVEL - ÁLCOOL (ETANOL)' else p.combdes end ||'|'||
                         case p.combcod
                             when '1' then '23401'
@@ -180,7 +200,7 @@ class Script:
                                 case c.combdes
                                     when 'GASOLINA' then 'COMBUSTÍVEL - GASOLINA'
                                     when 'DIESEL' then 'COMBUSTÍVEL - DIESEL COMUM'
-                                    when 'DIESEL S-10' then 'COMBUSTÍVEL - DIESEL S-10'
+                                    when 'DIESEL S-10' then 'COMBUSTÍVEL     -     DIESEL S-10'
                                     when 'ETANOL' then 'COMBUSTÍVEL - ÁLCOOL (ETANOL)' else c.combdes end ||'|' as veiculoProduto
                                 
                                 FROM public.fro_abastecimentos a
@@ -210,7 +230,7 @@ class Script:
                                 case c.combdes
                                     when 'GASOLINA' then 'COMBUSTÍVEL - GASOLINA'
                                     when 'DIESEL' then 'COMBUSTÍVEL - DIESEL COMUM'
-                                    when 'DIESEL S-10' then 'COMBUSTÍVEL - DIESEL S-10'
+                                    when 'DIESEL S-10' then 'COMBUSTÍVEL     -     DIESEL S-10'
                                     when 'ETANOL' then 'COMBUSTÍVEL - ÁLCOOL (ETANOL)' else c.combdes end ||'|'||
                                 case coalesce(cast(a.solicitantecodigo as varchar),'')
                                     when '0' then '101' else coalesce(cast(a.solicitantecodigo as varchar),'101') end ||'|'||
@@ -249,8 +269,16 @@ class Script:
                                 ab.veicod||'|'||
                                 TO_CHAR(ab.abastecimentodatahora, 'DD/MM/YYYY HH24:MI:SS')||'|'||
                                 ve.veicodbenpat||'|'||
-                                co.combcod||'|'||
-                                substring (co.combdes from 1 for 70)||'|'||
+                                case co.combcod
+                                    when '1' then '23401'
+                                    when '2' then '23402'
+                                    when '3' then '23403'
+                                    when '8' then '24595' else '' end ||'|'||
+                                case co.combdes
+                                    when 'GASOLINA' then 'COMBUSTÍVEL - GASOLINA'
+                                    when 'DIESEL' then 'COMBUSTÍVEL - DIESEL COMUM'
+                                    when 'DIESEL S-10' then 'COMBUSTÍVEL     -     DIESEL S-10'
+                                    when 'ETANOL' then 'COMBUSTÍVEL - ÁLCOOL (ETANOL)' else co.combdes end ||'|'||
                                 replace(cast(ab.abastecimentoqtd as varchar), '.', ',')||'|'||
                                 replace(cast(ab.abastecimentovalorun as varchar), '.', ',')||'|'||
                                 replace(cast((ab.abastecimentoqtd * ab.abastecimentovalorun ) as varchar), '.', ',')||'|'||
@@ -324,14 +352,13 @@ class Script:
                                     r.reqforpescod ||'|'||
                                     coalesce(replace(replace(replace(f.pescpfcnpj, '.',''), '/',''), '-',''),'77488005000806') ||'|'||
                                     case coalesce(cast(r.pescod as varchar),'')
-                                    when '0' then '22732' else coalesce(cast(r.pescod as varchar),'') end ||'|'||
+                                    when '0' then '{motorista}' else coalesce(cast(r.pescod as varchar),'') end ||'|'||
                                     coalesce(substring(cast(r.requisicaodata as varchar) from 9 for 2) ||'/'|| substring(cast(r.requisicaodata as varchar) from 6 for 2) ||'/'|| substring(cast(r.requisicaodata as varchar) from 1 for 4),'') ||'|'||
                                     case c.combdes
-                                    when 'OLEO' then '98714'
-                                    when 'GASOLINA' then '115754'
-                                    when 'ALCOOL' then '3'
-                                    when 'DIESEL S10' then '1801'
-                                    when 'DIESEL' then '116259' else '' end ||'|'||
+                                    when 'GASOLINA' then '23402'
+                                    when 'ETANOL' then '23401'
+                                    when 'DIESEL S-10' then '24595'
+                                    when 'DIESEL' then '23403' else '' end ||'|'||
                                     '1' ||'|'|| --1 Completo
                                     coalesce(replace(cast(r.requisicaoquantidade as varchar), '.', ','),'0,00') ||'|'||
                                     coalesce(cast (a.abastecimentocod as varchar), '') ||'|'||
