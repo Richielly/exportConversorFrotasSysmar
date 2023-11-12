@@ -18,7 +18,7 @@ def main(page: ft.Page):
 
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_center()
-    page.title = "Export Frotas Sysmar"+str(entidade) + " V_0.2.11"
+    page.title = "Export Frotas Acácia"+str(entidade) + " V_2.0.1_b"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
 
     def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['password'], password='es74079', port='5432', comandos=''):

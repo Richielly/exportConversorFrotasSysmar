@@ -3,22 +3,24 @@ import flet as ft
 import time
 import configparser
 import script
+import script_acacia
 from random import randrange as r
 from time import sleep
 import util as utl
 import psycopg2
 
-import update_sequence, read_file
+import update_sequence, read_file, config_db
 
 cfg = configparser.ConfigParser()
 cfg.read('cfg.ini')
 entidade = cfg['DEFAULT']['NomeEntidade']
-
+empresa = 'Sysmar' #Acácia
+sql_ini = 'script_sysmar.ini'
 def pages(page: ft.Page):
 
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_center()
-    page.title = "Export Frotas Sysmar"+str(entidade) + " V_2.0.0"
+    page.title = "Export Frotas "+str(empresa + entidade) + " V_2.0.2"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
 
     def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['password'], password='es74079', port='5432', comandos=''):
@@ -79,7 +81,10 @@ def pages(page: ft.Page):
             break
     def btn_click(e):
         sqls = script.Script()
-        comandos = sqls.query(txt_entidade.value)
+        # sqls = script_acacia.Script()
+        # comandos = sqls.query(txt_entidade.value)
+        comandos = utl.Util().obter_secao_configuracao(sql_ini)
+        
         if not txt_database.value:
             txt_database.error_text = "Informe o caminho do Banco"
             page.update()
@@ -147,7 +152,64 @@ def pages(page: ft.Page):
             txt_header.value = 'Arquivo HodometroHorimetro ➡️' + str(status_1)+ '✅' + '\nArquivo Consumo ➡️' + str(status_2) +'✅'
             page.update()
 
-    page.add(ft.Text("Exportador Sysmar para Sistema de Frotas", size=20, color='blue'))
+    def config_produtos(e):
+        host = 'localhost'
+        database = cfg['DEFAULT']['NomeBanco']
+        user = cfg['DEFAULT']['user']
+        password = 'es74079'
+        port = '5432'
+
+        dados_conexao = psycopg2.connect(
+            host=host,
+            database=database,
+            user=user,
+            password=password,
+            port=port
+        )
+        cur = dados_conexao.cursor()
+        cur.execute(f""" select combcod, combdes from fro_comb """)
+        result_origem = cur.fetchall()
+
+        #Listar produtos na origem
+        lista_produtos_oriegm = []
+        for i in result_origem:
+            lista_produtos_oriegm.append(i)
+
+        produto_origem.value=lista_produtos_oriegm[0]
+        produto_origem_2.value = lista_produtos_oriegm[1]
+        produto_origem_3.value = lista_produtos_oriegm[2]
+        produto_origem_4.value = lista_produtos_oriegm[3]
+        page.update()
+        if not txt_database_produtos.value:
+            txt_database_produtos.error_text = "Informe o caminho do Banco"
+            page.update()
+        else:
+            database_produtos = txt_database_produtos.value
+            host_produtos = txt_host_produtos.value
+            user_produtos = txt_user_produtos.value
+            port_produtos = txt_port_produtos.value
+            password_produtos = txt_password_produtos.value
+            conf_db = config_db.ConfigDB()
+
+            result = conf_db.produtos(host=host_produtos, port=port_produtos, user=user_produtos, password=password_produtos, database=database_produtos)
+
+            drop_down_produto.options.clear()
+
+            for i in result[0]:
+                drop_down_produto.options.append(ft.dropdown.Option(i))
+                drop_down_produto_2.options.append(ft.dropdown.Option(i))
+                drop_down_produto_3.options.append(ft.dropdown.Option(i))
+                drop_down_produto_4.options.append(ft.dropdown.Option(i))
+                page.update()
+
+            novo_produto.value = drop_down_produto.value
+            novo_produto_2.value = drop_down_produto_2.value
+            novo_produto_3.value = drop_down_produto_3.value
+            novo_produto_4.value = drop_down_produto_4.value
+            novo_produto.update()
+
+
+    page.add(ft.Text(f"Exportador {empresa} para Sistema de Frotas", size=20, color='blue'))
     header_frotas = ft.Text("Gerador de Arquivos das Frotas", size=20, color='blue')
     txt_entidade = ft.TextField(label="Entidade", text_size=12, value=cfg['DEFAULT']['CodEntidade'], width=100, height=35, disabled=False, tooltip='Alterar o código de entidade, tambem altera o arquivo "cfg.ini"')
     txt_host = ft.TextField(label="Host", text_size=12, value=cfg['DEFAULT']['Host'], width=100, height=35)
@@ -172,14 +234,36 @@ def pages(page: ft.Page):
     header_sequence = ft.Text("Atualiza Sequências", size=20, color='blue')
     txt_host_sequence = ft.TextField(label="Host", text_size=12, value='localhost', width=100, height=40)
     txt_user_sequence = ft.TextField(label="User", text_size=12, value='sysdba', width=100, height=40)
-    txt_password_sequence = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=40,
-                                         password=True, can_reveal_password=True)
-    txt_database_sequence = ft.TextField(label="Caminho do Banco para nova sequência",
-                                         value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=40, width=776)
+    txt_password_sequence = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=40,password=True, can_reveal_password=True)
+    txt_database_sequence = ft.TextField(label="Caminho do Banco para nova sequência", value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=40, width=776)
     txt_port_sequence = ft.TextField(label="Porta", text_size=12, value=3050, width=100, height=40)
     dados_banco_sequencia = ft.Row([txt_host_sequence, txt_port_sequence, txt_user_sequence, txt_password_sequence])
     btn_atualizar_sequencia = ft.Row([ft.ElevatedButton("Atualizar Sequências", on_click=atualizar_sequence, icon=ft.icons.SETTINGS)])
 
+    header_configuracoes = ft.Text("Configuração e manutenção de dados", size=20, color='blue')
+    txt_host_produtos = ft.TextField(label="Host", text_size=12, value='localhost', width=100, height=40)
+    txt_user_produtos = ft.TextField(label="User", text_size=12, value='sysdba', width=100, height=40)
+    txt_password_produtos = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=40,password=True, can_reveal_password=True)
+    txt_database_produtos = ft.TextField(label="Caminho do Banco origem produtos",value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=40, width=776)
+    txt_port_produtos = ft.TextField(label="Porta", text_size=12, value=3050, width=100, height=40)
+    dados_banco_produtos = ft.Row([txt_host_produtos, txt_port_produtos, txt_user_produtos, txt_password_produtos])
+    btn_buscar_produtos = ft.Row([ft.ElevatedButton("Buscar Produtos", on_click=config_produtos, icon=ft.icons.SEARCH)])
+    drop_down_produto = ft.Dropdown(width=400)
+    drop_down_produto_2 = ft.Dropdown(width=400)
+    drop_down_produto_3 = ft.Dropdown(width=400)
+    drop_down_produto_4 = ft.Dropdown(width=400)
+    produto_origem = ft.Text(size=20)
+    produto_origem_2 = ft.Text(size=20)
+    produto_origem_3 = ft.Text(size=20)
+    produto_origem_4 = ft.Text(size=20)
+    novo_produto = ft.Text(size=20)
+    novo_produto_2 = ft.Text(size=20)
+    novo_produto_3 = ft.Text(size=20)
+    novo_produto_4 = ft.Text(size=20)
+    linha_produto = ft.Row([produto_origem, drop_down_produto, novo_produto])
+    linha_produto_2 = ft.Row([produto_origem_2, drop_down_produto_2, novo_produto_2])
+    linha_produto_3 = ft.Row([produto_origem_3, drop_down_produto_3, novo_produto_3])
+    linha_produto_4 = ft.Row([produto_origem_4, drop_down_produto_4, novo_produto_4])
 
     t = ft.Tabs(
         selected_index=0,
@@ -206,13 +290,19 @@ def pages(page: ft.Page):
                     content=ft.Column([header_sequence, divisor, dados_banco_sequencia, txt_database_sequence, btn_atualizar_sequencia]), alignment=ft.alignment.center, padding=15
                 ),
             ),
+            ft.Tab(
+                text="Configurações",
+                icon=ft.icons.TABLE_VIEW,
+                content=ft.Container(
+                    content=ft.Column([header_configuracoes, divisor, dados_banco_produtos, txt_database_produtos, btn_buscar_produtos, linha_produto, linha_produto_2, linha_produto_3, linha_produto_4]), alignment=ft.alignment.center, padding=15
+                ),
+            ),
         ],
         expand=1,
     )
 
     page.add(t)
-    list_arquivos = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
-
+    # list_arquivos = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
 
 if __name__ == "__main__":
     # ft.app(port=3636, target=main, view=ft.WEB_BROWSER)
