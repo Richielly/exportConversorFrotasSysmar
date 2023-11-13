@@ -20,10 +20,10 @@ def pages(page: ft.Page):
 
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_center()
-    page.title = "Export Frotas "+str(empresa + entidade) + " V_2.0.2"
+    page.title = "Export Frotas "+str(empresa + entidade) + " V_3.0.1"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
 
-    def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['password'], password='es74079', port='5432', comandos=''):
+    def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['user'], password= cfg['DEFAULT']['password'], port = cfg['DEFAULT']['port'], comandos=''):
 
         if not os.path.exists(txt_local_arquivos.value):
             os.makedirs(txt_local_arquivos.value)
@@ -39,17 +39,15 @@ def pages(page: ft.Page):
 
         except Exception as e:
             return e
-
+        page.update()
         cur = dados_conexao.cursor()
-        page.add(txt_header)
-        page.add(list_arquivos)
+        # page.add(txt_header)
         list_arquivos.clean()
-        page.add(progressBar)
+        # page.add(progressBar)
         com_dados = 0
         sem_dados = 0
         step = 0
         while True:
-
             for comando in comandos:
                 step+=1
                 list_arquivos.update()
@@ -80,7 +78,7 @@ def pages(page: ft.Page):
             time.sleep(2)
             break
     def btn_click(e):
-        sqls = script.Script()
+        # sqls = script.Script()
         # sqls = script_acacia.Script()
         # comandos = sqls.query(txt_entidade.value)
         comandos = utl.Util().obter_secao_configuracao(sql_ini)
@@ -90,7 +88,7 @@ def pages(page: ft.Page):
             page.update()
         else:
             page.update()
-            txt_header.value = 'Arquivos Gerados'
+            txt_header.value = 'Sistema preparado para gerar arquivos...'
             database = txt_database.value
             utl.Util().update_cfg(new=txt_entidade.value)
             host= txt_host.value
@@ -111,7 +109,8 @@ def pages(page: ft.Page):
             page.update()
     def atualizar_sequence(e):
         atualiza = update_sequence.Update_sequence()
-        list_arquivos.controls.clear()
+        list_sequencia.controls.clear()
+        page.add(txt_header)
         if not txt_database_sequence.value:
             txt_database_sequence.error_text = "Informe o caminho do Banco"
             page.update()
@@ -126,17 +125,18 @@ def pages(page: ft.Page):
             if atualiza:
                 atualizados = []
                 for m in msg:
-                    sleep(0.5)
+                    sleep(0.1)
                     if m[0] != None:
                         txt_header.value = "\n" + str(m[0])
                         page.update()
                         atualizados.append(str(m[0]))
+                        list_sequencia.controls.append(ft.Text(f"✅ Sequência atualizada: {m[0]}", size=16))
             else:
                 txt_header.value = "As sequências não foram atualizadas, verifique manualmente!\n " + str(msg)
-            txt_header.value = "Sequências atualizadas: ✅ " + str(atualizados) + '✅'
+            page.add(txt_header)
+            txt_header.value = f"✅ Sequências atualizadas com sucesso"
             page.update()
     def gerar_arquivos_simam(e):
-        page.add(txt_header)
         list_arquivos.controls.clear()
 
         reade_file = read_file.Read_file()
@@ -156,8 +156,8 @@ def pages(page: ft.Page):
         host = 'localhost'
         database = cfg['DEFAULT']['NomeBanco']
         user = cfg['DEFAULT']['user']
-        password = 'es74079'
-        port = '5432'
+        password = cfg['DEFAULT']['password']
+        port = cfg['DEFAULT']['port']
 
         dados_conexao = psycopg2.connect(
             host=host,
@@ -220,10 +220,11 @@ def pages(page: ft.Page):
     txt_local_arquivos = ft.TextField(label="Caminho dos Arquivos gerados", value=cfg['DEFAULT']['DiretorioArquivos'], text_size=12, height=40, width=700)
     origem_destino = ft.Row([txt_database, txt_local_arquivos])
     txt_port = ft.TextField(label="Porta", text_size=12, value=cfg['DEFAULT']['port'], width=100, height=30)
-    txt_header = ft.Text('Arquivos Gerados')
+    txt_header = ft.Text('Sistema preparado para gerar arquivos...')
     dados_banco = ft.Row([txt_entidade, txt_host, txt_port, txt_user, txt_password])
     btn_gerar_arquivos = ft.ElevatedButton("Gerar Arquivos", on_click=btn_click, icon=ft.icons.ADD_BOX)
     list_arquivos = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
+    list_sequencia = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
     divisor = ft.Divider(height=2, thickness=3)
     header_simam = ft.Text("Gerador de Arquivos Sim Am", size=20, color='blue')
     txt_caminho_arquivo_sim_am = ft.TextField(label="Caminho do Arquivo SimAm", text_size=12, width=540, height=30)
@@ -273,7 +274,7 @@ def pages(page: ft.Page):
                 text="Gerar Arquivos Frotas",
                 icon=ft.icons.CAR_REPAIR,
                 content=ft.Container(
-                    content=ft.Column([header_frotas, divisor, dados_banco, origem_destino, btn_gerar_arquivos]), alignment=ft.alignment.center,padding=15
+                    content=ft.Column([header_frotas, divisor, dados_banco, origem_destino, btn_gerar_arquivos, txt_header,progressBar, list_arquivos]), alignment=ft.alignment.center,padding=15
                 ),
             ),
             ft.Tab(
@@ -287,7 +288,7 @@ def pages(page: ft.Page):
                 text="Atualizar Sequências",
                 icon=ft.icons.SETTINGS,
                 content=ft.Container(
-                    content=ft.Column([header_sequence, divisor, dados_banco_sequencia, txt_database_sequence, btn_atualizar_sequencia]), alignment=ft.alignment.center, padding=15
+                    content=ft.Column([header_sequence, divisor, dados_banco_sequencia, txt_database_sequence, btn_atualizar_sequencia, list_sequencia]), alignment=ft.alignment.center, padding=15
                 ),
             ),
             ft.Tab(
