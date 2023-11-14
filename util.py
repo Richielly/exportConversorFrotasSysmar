@@ -1,7 +1,7 @@
 import configparser
 import os
+import re
 from datetime import datetime
-
 class Util:
 
     def update_cfg(self, ini_name='cfg.ini', secao='DEFAULT', chave='CodEntidade', new=0):
@@ -68,21 +68,33 @@ class Util:
 
         return configuracoes_simples
 
+    def set_current_seconds(self, dt):
+        current_seconds = datetime.now().second
+        return dt.replace(second=current_seconds)
 
-import script
+    def set_current_seconds_and_milliseconds_firebird(self, date_str):
+        # Convertendo a string para um objeto datetime
+        dt = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
 
-# t = Util()
-# new_arquivo_ini = 'script_sysmar.ini'
+        # Obtendo os segundos e milissegundos atuais
+        current_seconds = datetime.now().second
+        current_microseconds = datetime.now().microsecond
+        current_milliseconds = int(current_microseconds / 1000)
 
-# print(t.create_file(filename=file_name))
-# t.atualizar_ou_criar_secao_config(nome_arquivo=new_arquivo_ini, secao=, configuracoes={'script':})
+        # Atualizando o objeto datetime com os segundos e milissegundos atuais
+        updated_dt = dt.replace(second=current_seconds, microsecond=current_milliseconds * 1000)
 
-# sqls = script.Script()
-# comandos = sqls.query(446)
-# for secao, script in comandos.items():
-#     print(secao)
-#     t.atualizar_ou_criar_secao_config(nome_arquivo=new_arquivo_ini, secao=secao, configuracoes={'script':str(script)})
-# print(t.listar_secoes(new_arquivo_ini))
-# print(t.mostrar_configuracoes(new_arquivo_ini, )['script'])
+        # Formatando o objeto datetime para a string no formato desejado
+        return updated_dt.strftime('%S.%f')[:-3]
 
-# print(t.obter_configuracoes_simples(new_arquivo_ini))
+    def extrair_data(self, texto):
+        # Use expressões regulares para encontrar uma correspondência no formato "dd/mm/yyyy hh:mm"
+        padrao = r'(\d{2}/\d{2}/\d{4} \d{2}:\d{2})'
+        correspondencias = re.findall(padrao, texto)
+
+        if correspondencias:
+            # O primeiro item na lista de correspondências é a data sem segundos
+            data_sem_segundos = correspondencias[0]
+
+        return data_sem_segundos
+

@@ -7,6 +7,7 @@ import script_acacia
 from random import randrange as r
 from time import sleep
 import util as utl
+from build_cache import BuildCache
 import psycopg2
 
 import update_sequence, read_file, config_db
@@ -20,7 +21,7 @@ def pages(page: ft.Page):
 
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_center()
-    page.title = "Export Frotas "+str(empresa + entidade) + " V_3.0.1"
+    page.title = "Export Frotas "+str(empresa + entidade) + " V_3.0.3"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
 
     def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['user'], password= cfg['DEFAULT']['password'], port = cfg['DEFAULT']['port'], comandos=''):
@@ -41,9 +42,7 @@ def pages(page: ft.Page):
             return e
         page.update()
         cur = dados_conexao.cursor()
-        # page.add(txt_header)
         list_arquivos.clean()
-        # page.add(progressBar)
         com_dados = 0
         sem_dados = 0
         step = 0
@@ -57,9 +56,15 @@ def pages(page: ft.Page):
                 arquivo = open(
                     txt_local_arquivos.value + comando + '_' + txt_entidade.value + '.txt', "w",
                     newline='', encoding='ANSI')
-
+                cache_segundos = BuildCache()
                 for inf in result:
-                    arquivo.write(str(inf[0]).replace('#sec#', str(r(0, 5)) + str(r(0, 9))) + '\n')
+                    if comando == 'Acumulador':
+                        data_sem_segundos = utl.Util().extrair_data(str(inf[0]))
+                        arquivo.write(str(inf[0]).replace(data_sem_segundos, cache_segundos.increment_seconds(data_sem_segundos)) + '\n')
+                        # arquivo.write(str(inf[0]).replace('#sec#', utl.Util().set_current_seconds_and_milliseconds_firebird('01/01/2001 00:00')) + '\n')
+                    # arquivo.write(str(inf[0]).replace('#sec#', str(r(0, 5)) + str(r(0, 9))) + '\n')
+                    else:
+                        arquivo.write(str(inf[0])+ '\n')
                 if len(result) < 1:
                     list_arquivos.controls.append(ft.Text('  ❗ Finalizado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16, color=ft.colors.ORANGE))
                     sem_dados+=1
