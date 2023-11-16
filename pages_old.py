@@ -15,17 +15,18 @@ import update_sequence, read_file, config_db
 cfg = configparser.ConfigParser()
 cfg.read('cfg.ini')
 entidade = cfg['DEFAULT']['NomeEntidade']
-empresa = 'Sysmar' #Acácia
+empresa = 'Sysmar'  # Acácia
 sql_ini = 'script_sysmar.ini'
 
-def pages(page: ft.Page):
 
+def pages(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_center()
-    page.title = "Export Frotas "+str(empresa + entidade) + " V_3.1.0"
+    page.title = "Export Frotas " + str(empresa + entidade) + " V_3.1.0"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
 
-    async def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['user'], password= cfg['DEFAULT']['password'], port = cfg['DEFAULT']['port'], comandos=''):
+    async def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['user'],
+                    password=cfg['DEFAULT']['password'], port=cfg['DEFAULT']['port'], comandos=''):
 
         if not os.path.exists(txt_local_arquivos.value):
             os.makedirs(txt_local_arquivos.value)
@@ -48,24 +49,15 @@ def pages(page: ft.Page):
         sem_dados = 0
         step = 0
 
-        data_values = [1, 0, 0, 0]  # Valores iniciais
-        graf = chart_data.build_chart(data_values)
-        page.add(graf)
-
         while True:
 
             for comando in comandos:
-                step+=1
-                await asyncio.sleep(5)
-                data_values = [5, 10, 15, 20]
-                new_graf = chart_data.build_chart(data_values)  # Cria um novo gráfico com os dados atualizados
-                page.remove(graf)  # Remove o gráfico antigo da página
-                page.add(new_graf)  # Adiciona o novo gráfico à página
-                await new_graf.update_async()  # Atualiza o novo gráfico
-                graf = new_graf  # Atualiza a referência para o novo gráfico
+                step += 1
 
                 list_arquivos.update()
-                list_arquivos.controls.append(ft.Text(f'{step}° Arquivo: ' + comando + ' iniciado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16, color=ft.colors.GREEN))
+                list_arquivos.controls.append(
+                    ft.Text(f'{step}° Arquivo: ' + comando + ' iniciado em ' + time.strftime("%d/%m/%y %H:%M:%S"),
+                            size=16, color=ft.colors.GREEN))
                 cur.execute(comandos[comando])
                 result = cur.fetchall()
                 arquivo = open(
@@ -76,18 +68,22 @@ def pages(page: ft.Page):
 
                     if comando == 'Acumulador':
                         data_sem_segundos = utl.Util().extrair_data(str(inf[0]))
-                        arquivo.write(str(inf[0]).replace(data_sem_segundos, cache_segundos.increment_seconds(data_sem_segundos)) + '\n')
+                        arquivo.write(str(inf[0]).replace(data_sem_segundos,
+                                                          cache_segundos.increment_seconds(data_sem_segundos)) + '\n')
                     else:
-                        arquivo.write(str(inf[0])+ '\n')
+                        arquivo.write(str(inf[0]) + '\n')
                 if len(result) < 1:
-                    list_arquivos.controls.append(ft.Text('  ❗ Finalizado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16, color=ft.colors.ORANGE))
-                    sem_dados+=1
+                    list_arquivos.controls.append(
+                        ft.Text('  ❗ Finalizado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16,
+                                color=ft.colors.ORANGE))
+                    sem_dados += 1
                 else:
-                    list_arquivos.controls.append(ft.Text('  ✅ Finalizado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16))
-                    com_dados+=1
-                for i in range(0, len(comandos)+1):
+                    list_arquivos.controls.append(
+                        ft.Text('  ✅ Finalizado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16))
+                    com_dados += 1
+                for i in range(0, len(comandos) + 1):
                     progressBar.value = step / len(comandos)
-                    txt_header.value=(f'{step} arquivos Gerados [Com dado: {com_dados}/ Vazio: {sem_dados}]')
+                    txt_header.value = (f'{step} arquivos Gerados [Com dado: {com_dados}/ Vazio: {sem_dados}]')
                     page.update()
                 sleep(0.3)
                 page.update()
@@ -96,12 +92,13 @@ def pages(page: ft.Page):
             cur.close()
             time.sleep(2)
             break
+
     def btn_click(e):
         # sqls = script.Script()
         # sqls = script_acacia.Script()
         # comandos = sqls.query(txt_entidade.value)
         comandos = utl.Util().obter_secao_configuracao(sql_ini)
-        
+
         if not txt_database.value:
             txt_database.error_text = "Informe o caminho do Banco"
             page.update()
@@ -110,22 +107,24 @@ def pages(page: ft.Page):
             txt_header.value = 'Sistema preparado para gerar arquivos...'
             database = txt_database.value
             utl.Util().update_cfg(new=txt_entidade.value)
-            host= txt_host.value
-            user= txt_user.value
-            port= txt_port.value
-            password= txt_password.value
+            host = txt_host.value
+            user = txt_user.value
+            port = txt_port.value
+            password = txt_password.value
 
-            log = asyncio.run(start(host=host, port=port, user=user, password=password, database=database, comandos=comandos))
+            log = asyncio.run(
+                start(host=host, port=port, user=user, password=password, database=database, comandos=comandos))
             if log != None:
                 list_arquivos.update()
                 txt_header.value = log
                 list_arquivos.controls.clear()
-                progressBar.value=0
+                progressBar.value = 0
                 progressBar.update()
                 if not progressBar:
                     progressBar.update()
 
             page.update()
+
     def atualizar_sequence(e):
         atualiza = update_sequence.Update_sequence()
         list_sequencia.controls.clear()
@@ -140,7 +139,8 @@ def pages(page: ft.Page):
             port_sequence = txt_port_sequence.value
             password_sequence = txt_password_sequence.value
 
-            status, msg = atualiza.atualiza_sequence(host=host_sequence, port=port_sequence, user=user_sequence, password=password_sequence, database=database_sequence)
+            status, msg = atualiza.atualiza_sequence(host=host_sequence, port=port_sequence, user=user_sequence,
+                                                     password=password_sequence, database=database_sequence)
             if atualiza:
                 atualizados = []
                 for m in msg:
@@ -155,6 +155,7 @@ def pages(page: ft.Page):
             page.add(txt_header)
             txt_header.value = f"✅ Sequências atualizadas com sucesso"
             page.update()
+
     def gerar_arquivos_simam(e):
         list_arquivos.controls.clear()
 
@@ -165,10 +166,15 @@ def pages(page: ft.Page):
             page.update()
         else:
 
-            status_1 = reade_file.buscar_arquivo_hodometro_horimetro(txt_caminho_arquivo_sim_am.value + '/', txt_caminho_arquivo_sim_am_destino.value + '/',txt_entidade_arquivo_sim_am.value)
-            status_2 = reade_file.buscar_arquivo_consumo(txt_caminho_arquivo_sim_am.value + '/', txt_caminho_arquivo_sim_am_destino.value + '/',txt_entidade_arquivo_sim_am.value)
+            status_1 = reade_file.buscar_arquivo_hodometro_horimetro(txt_caminho_arquivo_sim_am.value + '/',
+                                                                     txt_caminho_arquivo_sim_am_destino.value + '/',
+                                                                     txt_entidade_arquivo_sim_am.value)
+            status_2 = reade_file.buscar_arquivo_consumo(txt_caminho_arquivo_sim_am.value + '/',
+                                                         txt_caminho_arquivo_sim_am_destino.value + '/',
+                                                         txt_entidade_arquivo_sim_am.value)
 
-            txt_header.value = 'Arquivo HodometroHorimetro ➡️' + str(status_1)+ '✅' + '\nArquivo Consumo ➡️' + str(status_2) +'✅'
+            txt_header.value = 'Arquivo HodometroHorimetro ➡️' + str(status_1) + '✅' + '\nArquivo Consumo ➡️' + str(
+                status_2) + '✅'
             page.update()
 
     def config_produtos(e):
@@ -189,12 +195,12 @@ def pages(page: ft.Page):
         cur.execute(f""" select combcod, combdes from fro_comb """)
         result_origem = cur.fetchall()
 
-        #Listar produtos na origem
+        # Listar produtos na origem
         lista_produtos_oriegm = []
         for i in result_origem:
             lista_produtos_oriegm.append(i)
 
-        produto_origem.value=lista_produtos_oriegm[0]
+        produto_origem.value = lista_produtos_oriegm[0]
         produto_origem_2.value = lista_produtos_oriegm[1]
         produto_origem_3.value = lista_produtos_oriegm[2]
         produto_origem_4.value = lista_produtos_oriegm[3]
@@ -210,7 +216,8 @@ def pages(page: ft.Page):
             password_produtos = txt_password_produtos.value
             conf_db = config_db.ConfigDB()
 
-            result = conf_db.produtos(host=host_produtos, port=port_produtos, user=user_produtos, password=password_produtos, database=database_produtos)
+            result = conf_db.produtos(host=host_produtos, port=port_produtos, user=user_produtos,
+                                      password=password_produtos, database=database_produtos)
 
             drop_down_produto.options.clear()
 
@@ -227,16 +234,20 @@ def pages(page: ft.Page):
             novo_produto_4.value = drop_down_produto_4.value
             novo_produto.update()
 
-
     page.add(ft.Text(f"Exportador {empresa} para Sistema de Frotas", size=20, color='blue'))
     header_frotas = ft.Text("Gerador de Arquivos das Frotas", size=20, color='blue')
-    txt_entidade = ft.TextField(label="Entidade", text_size=12, value=cfg['DEFAULT']['CodEntidade'], width=100, height=35, disabled=False, tooltip='Alterar o código de entidade, tambem altera o arquivo "cfg.ini"')
+    txt_entidade = ft.TextField(label="Entidade", text_size=12, value=cfg['DEFAULT']['CodEntidade'], width=100,
+                                height=35, disabled=False,
+                                tooltip='Alterar o código de entidade, tambem altera o arquivo "cfg.ini"')
     txt_host = ft.TextField(label="Host", text_size=12, value=cfg['DEFAULT']['Host'], width=100, height=35)
     txt_user = ft.TextField(label="User", text_size=12, value=cfg['DEFAULT']['User'], width=250, height=35)
-    txt_password = ft.TextField(label="Password", text_size=12, value=cfg['DEFAULT']['password'], width=130, height=35,password=True, can_reveal_password=True)
+    txt_password = ft.TextField(label="Password", text_size=12, value=cfg['DEFAULT']['password'], width=130, height=35,
+                                password=True, can_reveal_password=True)
 
-    txt_database = ft.TextField(label="Nome do Banco", value=cfg['DEFAULT']['NomeBanco'], text_size=12, height=40, width=200)
-    txt_local_arquivos = ft.TextField(label="Caminho dos Arquivos gerados", value=cfg['DEFAULT']['DiretorioArquivos'], text_size=12, height=40, width=700)
+    txt_database = ft.TextField(label="Nome do Banco", value=cfg['DEFAULT']['NomeBanco'], text_size=12, height=40,
+                                width=200)
+    txt_local_arquivos = ft.TextField(label="Caminho dos Arquivos gerados", value=cfg['DEFAULT']['DiretorioArquivos'],
+                                      text_size=12, height=40, width=700)
     origem_destino = ft.Row([txt_database, txt_local_arquivos])
     txt_port = ft.TextField(label="Porta", text_size=12, value=cfg['DEFAULT']['port'], width=100, height=30)
     txt_header = ft.Text('Sistema preparado para gerar arquivos...')
@@ -248,23 +259,30 @@ def pages(page: ft.Page):
     header_simam = ft.Text("Gerador de Arquivos Sim Am", size=20, color='blue')
     txt_caminho_arquivo_sim_am = ft.TextField(label="Caminho do Arquivo SimAm", text_size=12, width=540, height=30)
     txt_caminho_arquivo_sim_am_destino = ft.TextField(label="Destino Arquivo SimAm", text_size=12, width=700, height=30)
-    txt_entidade_arquivo_sim_am = ft.TextField(label="Entidade SimAm", value=cfg['DEFAULT']['codentidade'], text_size=12, height=30, width=150)
+    txt_entidade_arquivo_sim_am = ft.TextField(label="Entidade SimAm", value=cfg['DEFAULT']['codentidade'],
+                                               text_size=12, height=30, width=150)
     dados_caminho_simAm = ft.Row([txt_entidade_arquivo_sim_am, txt_caminho_arquivo_sim_am])
-    btn_gerar_arquivos_simam = ft.Row([ft.ElevatedButton("Gerar Arquivos do Sim Am", on_click=gerar_arquivos_simam, icon=ft.icons.PAGES)])
+    btn_gerar_arquivos_simam = ft.Row(
+        [ft.ElevatedButton("Gerar Arquivos do Sim Am", on_click=gerar_arquivos_simam, icon=ft.icons.PAGES)])
     header_sequence = ft.Text("Atualiza Sequências", size=20, color='blue')
     txt_host_sequence = ft.TextField(label="Host", text_size=12, value='localhost', width=100, height=40)
     txt_user_sequence = ft.TextField(label="User", text_size=12, value='sysdba', width=100, height=40)
-    txt_password_sequence = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=40,password=True, can_reveal_password=True)
-    txt_database_sequence = ft.TextField(label="Caminho do Banco para nova sequência", value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=40, width=776)
+    txt_password_sequence = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=40,
+                                         password=True, can_reveal_password=True)
+    txt_database_sequence = ft.TextField(label="Caminho do Banco para nova sequência",
+                                         value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=40, width=776)
     txt_port_sequence = ft.TextField(label="Porta", text_size=12, value=3050, width=100, height=40)
     dados_banco_sequencia = ft.Row([txt_host_sequence, txt_port_sequence, txt_user_sequence, txt_password_sequence])
-    btn_atualizar_sequencia = ft.Row([ft.ElevatedButton("Atualizar Sequências", on_click=atualizar_sequence, icon=ft.icons.SETTINGS)])
+    btn_atualizar_sequencia = ft.Row(
+        [ft.ElevatedButton("Atualizar Sequências", on_click=atualizar_sequence, icon=ft.icons.SETTINGS)])
 
     header_configuracoes = ft.Text("Configuração e manutenção de dados", size=20, color='blue')
     txt_host_produtos = ft.TextField(label="Host", text_size=12, value='localhost', width=100, height=40)
     txt_user_produtos = ft.TextField(label="User", text_size=12, value='sysdba', width=100, height=40)
-    txt_password_produtos = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=40,password=True, can_reveal_password=True)
-    txt_database_produtos = ft.TextField(label="Caminho do Banco origem produtos",value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=40, width=776)
+    txt_password_produtos = ft.TextField(label="Password", text_size=12, value='masterkey', width=130, height=40,
+                                         password=True, can_reveal_password=True)
+    txt_database_produtos = ft.TextField(label="Caminho do Banco origem produtos",
+                                         value=cfg['DEFAULT']['NomeBancoSequence'], text_size=12, height=40, width=776)
     txt_port_produtos = ft.TextField(label="Porta", text_size=12, value=3050, width=100, height=40)
     dados_banco_produtos = ft.Row([txt_host_produtos, txt_port_produtos, txt_user_produtos, txt_password_produtos])
     btn_buscar_produtos = ft.Row([ft.ElevatedButton("Buscar Produtos", on_click=config_produtos, icon=ft.icons.SEARCH)])
@@ -295,28 +313,35 @@ def pages(page: ft.Page):
                 text="Gerar Arquivos Frotas",
                 icon=ft.icons.CAR_REPAIR,
                 content=ft.Container(
-                    content=ft.Column([header_frotas, divisor, dados_banco, origem_destino, btn_gerar_arquivos, txt_header,progressBar, list_arquivos]), alignment=ft.alignment.center,padding=15
+                    content=ft.Column(
+                        [header_frotas, divisor, dados_banco, origem_destino, btn_gerar_arquivos, txt_header,
+                         progressBar, list_arquivos]), alignment=ft.alignment.center, padding=15
                 ),
             ),
             ft.Tab(
                 text="Arquivos Sim Am",
                 icon=ft.icons.SEARCH,
                 content=ft.Container(
-                    content=ft.Column([header_simam, divisor, dados_caminho_simAm,txt_caminho_arquivo_sim_am_destino, btn_gerar_arquivos_simam]), alignment=ft.alignment.center,padding=15
+                    content=ft.Column([header_simam, divisor, dados_caminho_simAm, txt_caminho_arquivo_sim_am_destino,
+                                       btn_gerar_arquivos_simam]), alignment=ft.alignment.center, padding=15
                 ),
             ),
             ft.Tab(
                 text="Atualizar Sequências",
                 icon=ft.icons.SETTINGS,
                 content=ft.Container(
-                    content=ft.Column([header_sequence, divisor, dados_banco_sequencia, txt_database_sequence, btn_atualizar_sequencia, list_sequencia]), alignment=ft.alignment.center, padding=15
+                    content=ft.Column([header_sequence, divisor, dados_banco_sequencia, txt_database_sequence,
+                                       btn_atualizar_sequencia, list_sequencia]), alignment=ft.alignment.center,
+                    padding=15
                 ),
             ),
             ft.Tab(
                 text="Configurações",
                 icon=ft.icons.TABLE_VIEW,
                 content=ft.Container(
-                    content=ft.Column([header_configuracoes, divisor, dados_banco_produtos, txt_database_produtos, btn_buscar_produtos, linha_produto, linha_produto_2, linha_produto_3, linha_produto_4]), alignment=ft.alignment.center, padding=15
+                    content=ft.Column([header_configuracoes, divisor, dados_banco_produtos, txt_database_produtos,
+                                       btn_buscar_produtos, linha_produto, linha_produto_2, linha_produto_3,
+                                       linha_produto_4]), alignment=ft.alignment.center, padding=15
                 ),
             ),
             ft.Tab(
@@ -332,6 +357,7 @@ def pages(page: ft.Page):
 
     page.add(t)
     # list_arquivos = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
+
 
 if __name__ == "__main__":
     # ft.app(port=3636, target=main, view=ft.WEB_BROWSER)
