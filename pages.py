@@ -8,7 +8,7 @@ import util as utl
 from build_cache import BuildCache
 import psycopg2
 
-import chart_data
+import script
 
 import update_sequence, read_file, config_db
 
@@ -25,7 +25,8 @@ def pages(page: ft.Page):
     page.title = "Export Frotas "+str(empresa + entidade) + " V_3.1.0"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
 
-    async def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['user'], password= cfg['DEFAULT']['password'], port = cfg['DEFAULT']['port'], comandos=''):
+
+    def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['user'], password= cfg['DEFAULT']['password'], port = cfg['DEFAULT']['port'], comandos=''):
 
         if not os.path.exists(txt_local_arquivos.value):
             os.makedirs(txt_local_arquivos.value)
@@ -43,36 +44,37 @@ def pages(page: ft.Page):
             return e
         page.update()
         cur = dados_conexao.cursor()
+        cur_analise = dados_conexao.cursor()
         list_arquivos.clean()
         com_dados = 0
         sem_dados = 0
         step = 0
-
-        data_values = [1, 0, 0, 0]  # Valores iniciais
-        graf = chart_data.build_chart(data_values)
-        page.add(graf)
+        linha=0
 
         while True:
 
             for comando in comandos:
                 step+=1
-                await asyncio.sleep(5)
-                data_values = [5, 10, 15, 20]
-                new_graf = chart_data.build_chart(data_values)  # Cria um novo gráfico com os dados atualizados
-                page.remove(graf)  # Remove o gráfico antigo da página
-                page.add(new_graf)  # Adiciona o novo gráfico à página
-                await new_graf.update_async()  # Atualiza o novo gráfico
-                graf = new_graf  # Atualiza a referência para o novo gráfico
+
+                sqls = script.Script()
+                comandos_origem = sqls.query(txt_entidade.value)
+                # cur_analise.execute(comandos_origem[comando])
+                # resulta_analise = cur_analise.fetchone()
 
                 list_arquivos.update()
                 list_arquivos.controls.append(ft.Text(f'{step}° Arquivo: ' + comando + ' iniciado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16, color=ft.colors.GREEN))
                 cur.execute(comandos[comando])
                 result = cur.fetchall()
+
+                # analise_marca_origem.value = resulta_analise[0]
                 arquivo = open(
                     txt_local_arquivos.value + comando + '_' + txt_entidade.value + '.txt', "w",
                     newline='', encoding='ANSI')
                 cache_segundos = BuildCache()
+                sleep(5)
                 for inf in result:
+                    linha+=1
+                    analise_marca_destino.value = linha
 
                     if comando == 'Acumulador':
                         data_sem_segundos = utl.Util().extrair_data(str(inf[0]))
@@ -115,7 +117,7 @@ def pages(page: ft.Page):
             port= txt_port.value
             password= txt_password.value
 
-            log = asyncio.run(start(host=host, port=port, user=user, password=password, database=database, comandos=comandos))
+            log = start(host=host, port=port, user=user, password=password, database=database, comandos=comandos)
             if log != None:
                 list_arquivos.update()
                 txt_header.value = log
@@ -287,6 +289,17 @@ def pages(page: ft.Page):
 
     header_chart = ft.Text("Analise de dados", size=20, color='blue')
 
+    analise_cor_label = ft.Text("Cor", size=30, color='purple')
+    analise_cor_origem = ft.Text("0", size=20, color='green')
+    analise_cor_destino = ft.Text("0", size=30, color='red')
+    analise_cor = ft.Column([analise_cor_label, analise_cor_origem, analise_cor_destino])
+
+    analise_marca_label = ft.Text("Marca", size=30, color='purple')
+    analise_marca_origem = ft.Text("0", size=20, color='green')
+    analise_marca_destino = ft.Text("0", size=30, color='red')
+    analise_marca = ft.Column([analise_marca_label, analise_marca_origem, analise_marca_destino])
+
+
     t = ft.Tabs(
         selected_index=0,
         animation_duration=300,
@@ -320,10 +333,10 @@ def pages(page: ft.Page):
                 ),
             ),
             ft.Tab(
-                text="Chart",
+                text="Analise",
                 icon=ft.icons.PIE_CHART,
                 content=ft.Container(
-                    content=ft.Column([header_chart, divisor]), alignment=ft.alignment.center, padding=15
+                    content=ft.Row([analise_cor, analise_marca]), alignment=ft.alignment.center, padding=50
                 ),
             ),
         ],
