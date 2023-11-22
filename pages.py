@@ -15,15 +15,16 @@ import update_sequence, read_file, config_db
 cfg = configparser.ConfigParser()
 cfg.read('cfg.ini')
 entidade = cfg['DEFAULT']['NomeEntidade']
-empresa = 'Sysmar' #Acácia
-sql_ini = 'script_sysmar.ini'
+
 
 def pages(page: ft.Page):
 
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_center()
-    page.title = "Export Frotas "+str(empresa + entidade) + " V_3.1.0"
+    page.title = "Export Frotas "+str(entidade) + " V_3.1.0"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
+
+
 
 
     def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['user'], password= cfg['DEFAULT']['password'], port = cfg['DEFAULT']['port'], comandos=''):
@@ -71,7 +72,6 @@ def pages(page: ft.Page):
                     txt_local_arquivos.value + comando + '_' + txt_entidade.value + '.txt', "w",
                     newline='', encoding='ANSI')
                 cache_segundos = BuildCache()
-                sleep(5)
                 for inf in result:
                     linha+=1
                     analise_marca_destino.value = linha
@@ -96,12 +96,14 @@ def pages(page: ft.Page):
 
             dados_conexao.close()
             cur.close()
-            time.sleep(2)
             break
     def btn_click(e):
         # sqls = script.Script()
         # sqls = script_acacia.Script()
         # comandos = sqls.query(txt_entidade.value)
+        drop_down_cliente.value
+        sql_ini = f'script_{drop_down_cliente.value}.ini'
+        print(sql_ini)
         comandos = utl.Util().obter_secao_configuracao(sql_ini)
         
         if not txt_database.value:
@@ -229,8 +231,8 @@ def pages(page: ft.Page):
             novo_produto_4.value = drop_down_produto_4.value
             novo_produto.update()
 
-
-    page.add(ft.Text(f"Exportador {empresa} para Sistema de Frotas", size=20, color='blue'))
+    drop_down_cliente = ft.RadioGroup(content=ft.Row( [ft.Radio(value="sysmar", label="Sysmar"), ft.Radio(value="acacia", label="Acacia"), ]))
+    page.add(ft.Text(f"Exportador Sistema de Frotas", size=20, color='blue'))
     header_frotas = ft.Text("Gerador de Arquivos das Frotas", size=20, color='blue')
     txt_entidade = ft.TextField(label="Entidade", text_size=12, value=cfg['DEFAULT']['CodEntidade'], width=100, height=35, disabled=False, tooltip='Alterar o código de entidade, tambem altera o arquivo "cfg.ini"')
     txt_host = ft.TextField(label="Host", text_size=12, value=cfg['DEFAULT']['Host'], width=100, height=35)
@@ -287,6 +289,9 @@ def pages(page: ft.Page):
     linha_produto_3 = ft.Row([produto_origem_3, drop_down_produto_3, novo_produto_3])
     linha_produto_4 = ft.Row([produto_origem_4, drop_down_produto_4, novo_produto_4])
 
+
+
+    page.add(drop_down_cliente)
     header_chart = ft.Text("Analise de dados", size=20, color='blue')
 
     analise_cor_label = ft.Text("Cor", size=30, color='purple')
@@ -332,13 +337,13 @@ def pages(page: ft.Page):
                     content=ft.Column([header_configuracoes, divisor, dados_banco_produtos, txt_database_produtos, btn_buscar_produtos, linha_produto, linha_produto_2, linha_produto_3, linha_produto_4]), alignment=ft.alignment.center, padding=15
                 ),
             ),
-            ft.Tab(
-                text="Analise",
-                icon=ft.icons.PIE_CHART,
-                content=ft.Container(
-                    content=ft.Row([analise_cor, analise_marca]), alignment=ft.alignment.center, padding=50
-                ),
-            ),
+            # ft.Tab(
+            #     text="Analise",
+            #     icon=ft.icons.PIE_CHART,
+            #     content=ft.Container(
+            #         content=ft.Row([analise_cor, analise_marca]), alignment=ft.alignment.center, padding=50
+            #     ),
+            # ),
         ],
         expand=1,
     )

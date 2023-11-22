@@ -13,11 +13,11 @@ class Util:
         with open(ini_name, 'w') as configfile:
             cfg.write(configfile)
 
-    def create_file(self, filename):
+    def create_file(self, filename, tipo='.ini'):
         cfg = configparser.ConfigParser()
         cfg.read('cfg.ini')
         dir = cfg['DEFAULT']['diretorioarquivos']
-        file_dir_name = os.path.join(dir, filename + '.ini')
+        file_dir_name = os.path.join(dir, filename + tipo)
         if not os.path.exists(file_dir_name):
             with open(file_dir_name, 'w') as file:
                 file.write('[DEFAULT]' + '\n')
@@ -35,8 +35,7 @@ class Util:
             config.add_section(secao)
 
         # Atualiza as configurações na seção
-        for chave, valor in configuracoes.items():
-            config.set(secao, chave, valor)
+        config.set(secao, chave, valor)
 
         # Escreve as alterações no arquivo de configuração
         with open(nome_arquivo, 'w') as configfile:
