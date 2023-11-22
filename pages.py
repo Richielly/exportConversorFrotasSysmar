@@ -8,24 +8,20 @@ import util as utl
 from build_cache import BuildCache
 import psycopg2
 
-import script
-
-import update_sequence, read_file, config_db
+import update_sequence, read_file, config_db, template
 
 cfg = configparser.ConfigParser()
 cfg.read('cfg.ini')
 entidade = cfg['DEFAULT']['NomeEntidade']
 
+templ = template.Template()
 
 def pages(page: ft.Page):
 
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.window_center()
-    page.title = "Export Frotas "+str(entidade) + " V_3.1.0"
+    page.title = "Export Frotas "+str(entidade) + " V_4.0.0"
     progressBar = ft.ProgressBar(width=700, color=ft.colors.DEEP_ORANGE)
-
-
-
 
     def start(host='localhost', database=cfg['DEFAULT']['NomeBanco'], user=cfg['DEFAULT']['user'], password= cfg['DEFAULT']['password'], port = cfg['DEFAULT']['port'], comandos=''):
 
@@ -45,36 +41,37 @@ def pages(page: ft.Page):
             return e
         page.update()
         cur = dados_conexao.cursor()
-        cur_analise = dados_conexao.cursor()
         list_arquivos.clean()
         com_dados = 0
         sem_dados = 0
         step = 0
-        linha=0
 
+        dados_tabela={}
+
+        for comando in comandos:
+            cur.execute(comandos[comando])
+            result = cur.fetchall()
+            dados_tabela[comando]= len(result)
+
+        t.tabs[4].content.content = ft.Row([templ.tabela_analise(dados_tabela)[0], templ.tabela_analise(dados_tabela)[1]], alignment=ft.alignment.center, spacing=200)
+
+        t.update()
+        page.update()
         while True:
 
             for comando in comandos:
                 step+=1
-
-                sqls = script.Script()
-                comandos_origem = sqls.query(txt_entidade.value)
-                # cur_analise.execute(comandos_origem[comando])
-                # resulta_analise = cur_analise.fetchone()
 
                 list_arquivos.update()
                 list_arquivos.controls.append(ft.Text(f'{step}° Arquivo: ' + comando + ' iniciado em ' + time.strftime("%d/%m/%y %H:%M:%S"), size=16, color=ft.colors.GREEN))
                 cur.execute(comandos[comando])
                 result = cur.fetchall()
 
-                # analise_marca_origem.value = resulta_analise[0]
                 arquivo = open(
                     txt_local_arquivos.value + comando + '_' + txt_entidade.value + '.txt', "w",
                     newline='', encoding='ANSI')
                 cache_segundos = BuildCache()
                 for inf in result:
-                    linha+=1
-                    analise_marca_destino.value = linha
 
                     if comando == 'Acumulador':
                         data_sem_segundos = utl.Util().extrair_data(str(inf[0]))
@@ -98,20 +95,22 @@ def pages(page: ft.Page):
             cur.close()
             break
     def btn_click(e):
-        # sqls = script.Script()
-        # sqls = script_acacia.Script()
-        # comandos = sqls.query(txt_entidade.value)
+
+        if not drop_down_cliente.value:
+            txt_header.value = 'Informe um cliente'
+            page.update()
+            return False
+        else:
+            txt_header.value = 'Sistema preparado para gerar arquivos...'
         drop_down_cliente.value
         sql_ini = f'script_{drop_down_cliente.value}.ini'
-        print(sql_ini)
         comandos = utl.Util().obter_secao_configuracao(sql_ini)
-        
+
         if not txt_database.value:
             txt_database.error_text = "Informe o caminho do Banco"
             page.update()
         else:
             page.update()
-            txt_header.value = 'Sistema preparado para gerar arquivos...'
             database = txt_database.value
             utl.Util().update_cfg(new=txt_entidade.value)
             host= txt_host.value
@@ -231,7 +230,7 @@ def pages(page: ft.Page):
             novo_produto_4.value = drop_down_produto_4.value
             novo_produto.update()
 
-    drop_down_cliente = ft.RadioGroup(content=ft.Row( [ft.Radio(value="sysmar", label="Sysmar"), ft.Radio(value="acacia", label="Acacia"), ]))
+    drop_down_cliente = ft.RadioGroup(content=ft.Row([ft.Radio(value="sysmar", label="Sysmar"), ft.Radio(value="acacia", label="Acacia"), ]))
     page.add(ft.Text(f"Exportador Sistema de Frotas", size=20, color='blue'))
     header_frotas = ft.Text("Gerador de Arquivos das Frotas", size=20, color='blue')
     txt_entidade = ft.TextField(label="Entidade", text_size=12, value=cfg['DEFAULT']['CodEntidade'], width=100, height=35, disabled=False, tooltip='Alterar o código de entidade, tambem altera o arquivo "cfg.ini"')
@@ -243,7 +242,7 @@ def pages(page: ft.Page):
     txt_local_arquivos = ft.TextField(label="Caminho dos Arquivos gerados", value=cfg['DEFAULT']['DiretorioArquivos'], text_size=12, height=40, width=700)
     origem_destino = ft.Row([txt_database, txt_local_arquivos])
     txt_port = ft.TextField(label="Porta", text_size=12, value=cfg['DEFAULT']['port'], width=100, height=30)
-    txt_header = ft.Text('Sistema preparado para gerar arquivos...')
+    txt_header = ft.Text('')
     dados_banco = ft.Row([txt_entidade, txt_host, txt_port, txt_user, txt_password])
     btn_gerar_arquivos = ft.ElevatedButton("Gerar Arquivos", on_click=btn_click, icon=ft.icons.ADD_BOX)
     list_arquivos = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
@@ -290,30 +289,18 @@ def pages(page: ft.Page):
     linha_produto_4 = ft.Row([produto_origem_4, drop_down_produto_4, novo_produto_4])
 
 
-
-    page.add(drop_down_cliente)
     header_chart = ft.Text("Analise de dados", size=20, color='blue')
-
-    analise_cor_label = ft.Text("Cor", size=30, color='purple')
-    analise_cor_origem = ft.Text("0", size=20, color='green')
-    analise_cor_destino = ft.Text("0", size=30, color='red')
-    analise_cor = ft.Column([analise_cor_label, analise_cor_origem, analise_cor_destino])
-
-    analise_marca_label = ft.Text("Marca", size=30, color='purple')
-    analise_marca_origem = ft.Text("0", size=20, color='green')
-    analise_marca_destino = ft.Text("0", size=30, color='red')
-    analise_marca = ft.Column([analise_marca_label, analise_marca_origem, analise_marca_destino])
-
 
     t = ft.Tabs(
         selected_index=0,
         animation_duration=300,
+        scrollable=True,
         tabs=[
             ft.Tab(
                 text="Gerar Arquivos Frotas",
                 icon=ft.icons.CAR_REPAIR,
                 content=ft.Container(
-                    content=ft.Column([header_frotas, divisor, dados_banco, origem_destino, btn_gerar_arquivos, txt_header,progressBar, list_arquivos]), alignment=ft.alignment.center,padding=15
+                    content=ft.Column([header_frotas, divisor, dados_banco, origem_destino, drop_down_cliente, btn_gerar_arquivos, txt_header,progressBar, list_arquivos]), alignment=ft.alignment.center,padding=15
                 ),
             ),
             ft.Tab(
@@ -337,20 +324,22 @@ def pages(page: ft.Page):
                     content=ft.Column([header_configuracoes, divisor, dados_banco_produtos, txt_database_produtos, btn_buscar_produtos, linha_produto, linha_produto_2, linha_produto_3, linha_produto_4]), alignment=ft.alignment.center, padding=15
                 ),
             ),
-            # ft.Tab(
-            #     text="Analise",
-            #     icon=ft.icons.PIE_CHART,
-            #     content=ft.Container(
-            #         content=ft.Row([analise_cor, analise_marca]), alignment=ft.alignment.center, padding=50
-            #     ),
-            # ),
+            ft.Tab(
+                text="Analise",
+                icon=ft.icons.MULTILINE_CHART,
+                content=ft.Container(
+                    # content=ft.Column([tabela], alignment=ft.alignment.center),
+                    padding=50,
+                    border_radius=10,
+                    bgcolor=ft.colors.GREY_200,
+                ),
+            ),
         ],
         expand=1,
     )
 
     page.add(t)
-    # list_arquivos = ft.ListView(expand=1, spacing=2, padding=20, auto_scroll=True)
-
+    page.update()
 if __name__ == "__main__":
     # ft.app(port=3636, target=main, view=ft.WEB_BROWSER)
     ft.app(target=pages)
